@@ -141,7 +141,7 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 require XSLoader;
 XSLoader::load('IPC::Door', $VERSION);

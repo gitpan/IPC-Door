@@ -14,15 +14,15 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 f4a4cf4ebb9551259f1287e9e949db9f1ddf1b17 Changes
-SHA1 0fe6200c683e16f6bea3282819c9f09bb5d9f58a Door.pm
-SHA1 e725d742876304e155ddf7f9def56c9706523076 Door.xs
+SHA1 e5f141605860f84465b2e1356f89ad9e87d3e8db Changes
+SHA1 786ccf031bc3021bfb3101137c25a0381983e9d1 Door.pm
+SHA1 acac79de42b3fb478f1057d587ce075b727b4c45 Door.xs
 SHA1 6c08f0a30916827c1d6bcd101909ae5739fe8328 Door/Client.pm
 SHA1 dfff2b2eb813c7faf8206cfdbeb5fa2e9d1ac21e Door/Server.pm
 SHA1 60e48680c673a22fd004bea780e7b9b9754114e4 MANIFEST
 SHA1 a6979a3decf74568d1a1b3f57b307014fd154628 META.yml
 SHA1 beed38f0923fc6659258f6618c30ed30c1036ac2 Makefile.PL
-SHA1 38d42739ad81de779191f3f14679906c2800560c README
+SHA1 95398d9583ccee3050bf6f86069f21462264a0d0 README
 SHA1 86eeecd13b2a84b265ab741251ba7d4dcad51b2d const-c.inc
 SHA1 dffa9821b49d21ec4d07e9314de27092bb810fb4 const-xs.inc
 SHA1 86eeecd13b2a84b265ab741251ba7d4dcad51b2d fallback/const-c.inc
@@ -38,16 +38,16 @@ SHA1 9586fff2817c1d59af6866472141294dd03c5d48 t/07-main.t
 SHA1 c1e81a2d67f5c9e96248bc47a6caf8904d1f923c t/08-client-server.t
 SHA1 cda2e836d0c4b9abfe8e4726116a52c889ba69f7 t/09-client-server2.t
 SHA1 18bead10c2024fe3fe05c8318a9e0298e4c1df59 t/10-client-server3.t
-SHA1 38ccd5dd47d7bace756457a43e1e904da0c51415 t/bench-door-server.pl
-SHA1 ca108f0066006762ead3261d68a61ad3e8cb18d1 t/bench-pipe-server.pl
-SHA1 197041cb1f0c0f3ccbfbecdbf843cce2864577c2 t/benchmark.pl
-SHA1 4dc5fb5ae9f8045af41e43b24699499631789a73 t/door-server.pl
-SHA1 c2ef8d95003f6686f8e03a4a117a10450851bd7a t/door-server2.pl
-SHA1 6243c60274c251742f30c6cc3a7d37681132f53e t/door-server3.pl
+SHA1 3d2b8d6dd0a797f0fa8bbc9d8be29f658ca2c085 t/bench-door-server.pl
+SHA1 bfb34f13458ecf9edda8cd27162d3bf682a909f1 t/bench-pipe-server.pl
+SHA1 060efc75edc5cd84c3d80d98b8687ac91a41307e t/benchmark.pl
+SHA1 3079c374b0c0c4a6602ed3ca86f79363c6dce4e6 t/door-server.pl
+SHA1 8bdf030b855a41f522d80e96a34a1e30410c15b7 t/door-server2.pl
+SHA1 935729737922e1682f545e1ae12af8a571f65e54 t/door-server3.pl
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (SunOS)
 
-iD8DBQFAk83moXhPvmJPsrERAjllAJkBgS8pK7bwlez+dbAjx0Zr7BMO7QCfcFGg
-RFlN6PAtyxYHYe18apbC3FE=
-=1I/m
+iD8DBQFAlLUooXhPvmJPsrERAu4hAJ9GsXEzSfSahN+kTPNcms45tPTROQCcDlgO
+eJLDgjLLGJNDdk+RNLU3O10=
+=0kGQ
 -----END PGP SIGNATURE-----

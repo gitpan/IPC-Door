@@ -1,5 +1,8 @@
 Revision history for Perl extension IPC::Door.
 
+0.07  Sun May  2 03:44:40 CDT 2004
+	- Removed C99-style comments for compatibility with older compilers.
+
 0.06  Sat May  1 11:07:15 CDT 2004
 	- Now the only data that you can send through the door are strings.
 

@@ -1,5 +1,5 @@
 /*
-$Id: Door.xs,v 1.35 2004/05/01 07:45:34 asari Exp $
+$Id: Door.xs,v 1.36 2004/05/02 08:23:50 asari Exp $
 */
 #include "EXTERN.h"
 #include "perl.h"
@@ -24,9 +24,9 @@ $Id: Door.xs,v 1.35 2004/05/01 07:45:34 asari Exp $
 
 /* typedefs */
 typedef struct {
-//	NV   ipc_door_data_nv;
+/*	NV   ipc_door_data_nv; */
 	char ipc_door_data_pv[MAX_STRING];
-//	bool want_num;  /* perl.h should have it */
+/*	bool want_num;  */
 } ipc_door_data_t;
 
 /* The server process */
@@ -49,24 +49,28 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
 
 	PUSHMARK(SP);
 
-//	printf("datasize: %d, sizeof(arg): %d\n", datasize, sizeof(arg));
+/*	printf("datasize: %d, sizeof(arg): %d\n", datasize, sizeof(arg));
+*/
 	memmove(&arg, dataptr, min(datasize,sizeof(arg)));
 	if ((str = calloc(MAX_STRING, 1)) == NULL)
 		return;
 	arg.ipc_door_data_pv[MAX_STRING-1]='\0';
 	strncpy(str, arg.ipc_door_data_pv, MAX_STRING);
-//	memmove((void*)str, arg.ipc_door_data_pv, MAX_STRING);
-//	printf("str: %x\narg.ipc_door_data_pv: %x\n", str, arg.ipc_door_data_pv);
+/*	memmove((void*)str, arg.ipc_door_data_pv, MAX_STRING);
+*/
+/*	printf("str: %x\narg.ipc_door_data_pv: %x\n", str, arg.ipc_door_data_pv);
+*/
 	sv=sv_newmortal();
 	sv_callback=sv_newmortal();
 	sv_callback = (SV *) cookie;
 	sv = newSVpv( str, 0 );
 	free(str);
-//	(void)SvUPGRADE(sv,SVt_PVNV);
-//	SvIV(sv);
-//	SvNV(sv);
-//	printf("Now in servproc\n");
-//	sv_dump(sv);
+/*	(void)SvUPGRADE(sv,SVt_PVNV);
+		SvIV(sv);
+		SvNV(sv);
+		printf("Now in servproc\n");
+		sv_dump(sv);
+*/
 
 	if (SvOK(sv)) {
 		XPUSHs(sv);
@@ -111,14 +115,15 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
 
 
 	if (door_return((char *) &retval, sizeof(retval),NULL,0) < 0) {
-//			printf("door_return() failed!");
+/*			printf("door_return() failed!");
+*/
 			/* Why did it fail? */
 			PerlIO_printf(PerlIO_stderr(), "door_return() failed: ");
 			PerlIO_printf(PerlIO_stderr(), strerror(errno));
 			PerlIO_printf(PerlIO_stderr(), "\n");
-//		} else {
-			/* fall through */
-//			printf("door_return() succeeded!");
+/*		} else {
+				printf("door_return() succeeded!");
+*/
 		}
 
 	PUTBACK;
@@ -206,7 +211,6 @@ __create(sv_class, sv_path, sv_callback)
 		int  fd;
 		char *path      = SvPV(sv_path, PL_na);
 		char *callback  = SvPV(sv_callback, PL_na);
-//		SV ** svp;
 
 		/* Make sure sv_server is sane */
 		if (!sv_isobject(sv_class)) {
@@ -255,8 +259,10 @@ __call(sv_class, sv_path, sv_input, sv_attr)
 		int attr     = SvIV(sv_attr);
 		int fd;
 		ipc_door_data_t servproc_in, servproc_out;
-//		SV sv=*sv_input;
-//		SV* referent = SvRV(sv_input);
+/*		SV sv=*sv_input;
+*/
+/*		SV* referent = SvRV(sv_input);
+*/
 		door_arg_t arg;
 		SV   *output;
 		char *s;
@@ -289,20 +295,20 @@ __call(sv_class, sv_path, sv_input, sv_attr)
 			if (close(fd) < 0) croak ("close() failed\n");
 				XSRETURN_UNDEF;
 		} else {
-//			printf("door_call() succeeded!");
+/*			printf("door_call() succeeded!"); */
 			if (close(fd) < 0) croak ("close() failed\n");
-				// we want a string
+				/* we want a string */
 			if (((char*)s=calloc(MAX_STRING,1)) == NULL)
 				XSRETURN_UNDEF;
 			output = sv_newmortal();
-//			(void)SvUPGRADE(output,SVt_PVNV);
+/*			(void)SvUPGRADE(output,SVt_PVNV); */
 			servproc_out.ipc_door_data_pv[MAX_STRING-1]='\0';
 			if ( strncpy(s, servproc_out.ipc_door_data_pv, MAX_STRING) == NULL )
 				XSRETURN_UNDEF;
 			output = newSVpv( s, 0 );
-//			SvNV(output);
-//			SvIV(output);
-//			sv_dump(output);
+/*			SvNV(output); */
+/*			SvIV(output); */
+/*			sv_dump(output); */
 			free(s);
 
 			FREETMPS;
