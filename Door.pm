@@ -1,4 +1,4 @@
-# $Id: Door.pm,v 1.34 2004/05/06 05:55:54 asari Exp $
+# $Id: Door.pm,v 1.36 2004/05/22 22:27:24 asari Exp $
 
 =head1 NAME
 
@@ -29,11 +29,11 @@ The server script:
 The client script:
 
     use IPC::Door::Client;
-        use Fcntl;
-        my  $door = "/path/to/door";
-        my  $dclient = new IPC::Door::Client($door);
-        my  $data;
-        my  $answer = $client->call($data, O_RDWR);
+    use Fcntl;
+    my  $door = "/path/to/door";
+    my  $dclient = new IPC::Door::Client($door);
+    my  $data;
+    my  $answer = $client->call($data, O_RDWR);
 
 =cut
 
@@ -48,8 +48,9 @@ use POSIX qw[ :fcntl_h uname ];
 
 # Make sure we're on an appropriate version of Solaris
 my ($sysname, $release) = (POSIX::uname())[ 0, 2 ];
+my ($major, $minor) = split /\./, $release;
 die "This module requires Solaris 2.6 and later.\n"
-  unless $sysname eq 'SunOS' && $release >= 5.6;
+  unless $sysname eq 'SunOS' && $major >= 5 && $minor >= 6;
 
 require Exporter;
 use AutoLoader;
@@ -63,6 +64,7 @@ our %EXPORT_TAGS = (
           DOOR_BIND
           DOOR_CALL
           DOOR_CREATE
+          DOOR_CREATE_MASK
           DOOR_CRED
           DOOR_DELAY
           DOOR_DESCRIPTOR
@@ -71,20 +73,22 @@ our %EXPORT_TAGS = (
           DOOR_INFO
           DOOR_INVAL
           DOOR_IS_UNREF
+          DOOR_KI_CREATE_MASK
           DOOR_LOCAL
           DOOR_PRIVATE
           DOOR_QUERY
+          DOOR_REFUSE_DESC
           DOOR_RELEASE
           DOOR_RETURN
           DOOR_REVOKE
           DOOR_REVOKED
+          DOOR_UCRED
           DOOR_UNBIND
           DOOR_UNREF
-          DOOR_UNREFSYS
           DOOR_UNREF_ACTIVE
           DOOR_UNREF_MULTI
+          DOOR_UNREFSYS
           DOOR_WAIT
-          S_IFDOOR
           )
     ],
 
@@ -92,14 +96,17 @@ our %EXPORT_TAGS = (
     'attr' => [
         qw(
           DOOR_ATTR_MASK
-          DOOR_UNREF
-          DOOR_PRIVATE
-          DOOR_UNREF_MULTI
-          DOOR_LOCAL
-          DOOR_REVOKED
-          DOOR_IS_UNREF
+          DOOR_CREATE_MASK
           DOOR_DELAY
+          DOOR_IS_UNREF
+          DOOR_KI_CREATE_MASK
+          DOOR_LOCAL
+          DOOR_PRIVATE
+          DOOR_REFUSE_DESC
+          DOOR_REVOKED
+          DOOR_UNREF
           DOOR_UNREF_ACTIVE
+          DOOR_UNREF_MULTI
           )
     ],
 
@@ -123,21 +130,22 @@ our %EXPORT_TAGS = (
     # errors
     'errors' => [
         qw(
-          DOOR_WAIT
           DOOR_EXIT
+          DOOR_WAIT
           )
     ],
 
     # door operation subcodes
     'subcodes' => [
         qw(
-          DOOR_CREATE
-          DOOR_REVOKE
-          DOOR_INFO
-          DOOR_CALL
-          DOOR_RETURN
-          DOOR_CRED
           DOOR_BIND
+          DOOR_CALL
+          DOOR_CREATE
+          DOOR_CRED
+          DOOR_INFO
+          DOOR_RETURN
+          DOOR_REVOKE
+          DOOR_UCRED
           DOOR_UNBIND
           DOOR_UNREFSYS
           )
@@ -172,7 +180,7 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 require XSLoader;
 XSLoader::load('IPC::Door', $VERSION);
@@ -225,7 +233,7 @@ sub new {
 
 =head2 is_door
 
-    $dserver-E<gt>is_door;
+    $dserver->is_door;
 
     IPC::Door::is_door('/path/to/door');
 
@@ -245,7 +253,8 @@ door.
 
     my ($target, $attr, $uniq) = IPC::Door::info($door);
 
-Subroutine C<info> takes the path to a door and return array C<(target, attributes, uniquifer)>.
+Subroutine C<info> takes the path to a door and return array
+C<(target, attributes, uniquifer)>.
 C<target> is the server process id that is listening through the door,
 C<attributes> is the integer that represents the attributes of the door
 (see L<Door attributes>),
@@ -260,9 +269,19 @@ some symbols:
 C<use IPC::Door qw( :attr );>
 
 This imports symbols
-C<DOOR_ATTR_MASK> C<DOOR_UNREF> C<DOOR_PRIVATE> C<DOOR_UNREF_MULTI>
-C<DOOR_LOCAL> C<DOOR_REVOKED> C<DOOR_IS_UNREF> C<DOOR_DELAY>
+C<DOOR_ATTR_MASK>
+C<DOOR_CREATE_MASK>
+C<DOOR_DELAY>
+C<DOOR_IS_UNREF>
+C<DOOR_KI_CREATE_MASK>
+C<DOOR_LOCAL>
+C<DOOR_PRIVATE>
+C<DOOR_REVOKED>
+C<DOOR_UNREF>
 C<DOOR_UNREF_ACTIVE>
+C<DOOR_UNREF_MULTI>
+
+Note that not all symbols are available in all versions of Solaris.
 
 =cut
 
@@ -298,35 +317,43 @@ If you want to pass complex data structures, use the L<Storable> module,
 which is now standard with Perl 5.8.0.
 
 This also means that only C<IPC::Door::Server> servers can talk to
-non-C<IPC::Door::client> clients, and conversely.
+C<IPC::Door::client> clients, and conversely.
 
-Furthermore, if you have too much data (8KB or so) through the door, the
-door server process dumps core with segmentation fault when DESTROY'd.
+Furthermore, if you pass too much data (8KB or so) through the door, the
+door server process dumps core with segmentation fault when DESTROY'ed.
+I have not fully investigated the cause.
 
 =item 2.  Some C<door_*> routines not implemented
 
 Some door library routines
-C<door_bind>, C<door_revoke>, C<door_server_create>, and C<door_unbind>
-still need to be implemented.
+C<door_bind>, C<door_revoke>, C<door_server_create>,
+and C<door_unbind> still need to be implemented.
+These routines contribute to custom door server creation, which may be
+too complicated and unnecessary for this module's needs; if such a fine
+control over the server creation process is required, perhaps you should
+be writing your utility in C!
+If you are really interested in this sort of thing, contact the author.
+
 C<door_info> is only partially implemented.
 
-=item 3.  Minimal error checking
+=item 3.  Incomplete error checking
 
 There should be more robust error checking and more friendly error
 messages throughout.
 
 =item 4.  Limited testing
 
-C<IPC::Door> has been tested on Solaris 8 (with Sun Workshop compiler)
-and 9 (with gcc 3.3) (both on SPARC).
+C<IPC::Door> has been tested on Solaris 8 (with Sun Workshop compiler),
+9 (with gcc 3.3), and 10 (5/04, with gcc 3.4.0) (all on SPARC).
 
-I need more testing on following configurations (both SPARC and x86):
+I need more testing on following configurations (both SPARC and x86
+unless otherwisse noted):
 
 =over 4
 
 =item *
 
-Solaris 9 with Sun ONE Studio compiler.
+Solaris 9 and 10 with Sun ONE Studio compiler.
 
 =item *
 
@@ -335,6 +362,10 @@ Solaris 9 with Sun ONE Studio compiler.
 =item *
 
 Threaded perl.
+
+=item *
+
+Solaris 10 on x86.
 
 =back
 
@@ -358,27 +389,37 @@ It may or may not work.
 
 L<IPC::Door::Client>, L<IPC::Door::Server>
 
-door_bind(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3m?a=view>E<gt>,
-door_call(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3n?a=view>E<gt>,
-door_create(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3n?a=view>E<gt>,
-door_cred(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3p?a=view>E<gt>,
-door_info(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3q?a=view>E<gt>,
-door_return(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3r?a=view>E<gt>,
-door_revoke(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3s?a=view>E<gt>,
-door_server_create(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3t?a=view>E<gt>,
-door_unbind(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3u?a=view>E<gt>,
+door_bind(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3m?a=view>),
+
+door_call(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3n?a=view>),
+
+door_create(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3n?a=view>),
+
+door_cred(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3p?a=view>),
+
+door_info(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3q?a=view>),
+
+door_return(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3r?a=view>),
+
+door_revoke(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3s?a=view>),
+
+door_server_create(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3t?a=view>),
+
+door_ucred(3DOOR)
+
+door_unbind(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3u?a=view>),
 
 I<UNIX Network Programming Volume 2: Interprocess Communications>
-E<lt>L<"http://www.kohala.com/start/unpv22e/unpv22e.html">E<gt>
+(L<http://www.kohala.com/start/unpv22e/unpv22e.html>)
 
 I<Solaris Internals: Core Kernel Architecture>
-E<lt>http://www.solarisinternals.com"E<gt>
+(L<http://www.solarisinternals.com>)
 
 =head1 AUTHOR
 
 ASARI Hirotsugu <asarih at cpan dot org>
 
-L<http://www.asari.net/perl>
+(L<http://www.asari.net/perl>)
 
 =head1 COPYRIGHT AND LICENSE
 

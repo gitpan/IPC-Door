@@ -1,5 +1,5 @@
 # Makefile.PL for IPC::Door
-# $Id: Makefile.PL,v 1.14 2004/05/06 03:05:57 asari Exp $
+# $Id: Makefile.PL,v 1.15 2004/05/19 13:11:32 asari Exp $
 use 5.006;
 use ExtUtils::MakeMaker;
 
@@ -7,8 +7,11 @@ use ExtUtils::MakeMaker;
 # the contents of the Makefile that is written.
 use POSIX qw[ uname ];
 my ($sysname, $release) = (POSIX::uname())[ 0, 2 ];
+my ($major, $minor) = split /\./,$release;
 die "This module requires Solaris 2.6 and later.\n"
-  unless $sysname eq 'SunOS' && $release >= 5.6;
+  unless $sysname eq 'SunOS' && $major >= 5 && $minor >= 6;
+
+my $ldflags = '-D_REENTRANT'.($minor >= 10? ' -DHAS_UCRED_H': '');
 
 ######################################################
 # Edit the shebang lines in the server scripts
@@ -55,17 +58,15 @@ WriteMakefile(
           )
         : ()
     ),
-    'LIBS'   => ['-ldoor -lthread'], # e.g., '-lm'
-    'DEFINE' => '-D_REENTRANT',               # '-DDEBUGME' if debugging
-    'INC'    => '-I.',                        # e.g., '-I. -I/usr/include/other'
+    'LIBS'   => ['-ldoor -lthread'],       # e.g., '-lm'
+    'DEFINE' => $ldflags,            # '-DDEBUGME' if debugging
+    'INC'    => '-I.',                     # e.g., '-I. -I/usr/include/other'
          # Undo the shebang line edits for distribution
     dist => {
         PREOP =>
-          '$(PERLRUN) -pi -e \'s/^\#!.*/\#!PERL -w/\' $(DISTVNAME)/t/*.pl'
+'$(PERLRUN) -pi -e \'s/^\#!.*/\#!PERL -w/\' $(DISTVNAME)/t/*.pl; cd $(DISTVNAME); cpansign -s',
     },
-
-    # Un-comment this if you add C files to link with later:
-    # 'OBJECT'		=> '$(O_FILES)', # link all the C files too
+    clean => { FILES => 'const-c.inc const-xs.inc' },
 );
 if (eval { require ExtUtils::Constant; 1 }) {
 
@@ -74,13 +75,18 @@ if (eval { require ExtUtils::Constant; 1 }) {
     # files to replace their "fallback" counterparts before distributing your
     # changes.
     my @names = (
-        qw(DOOR_ATTR_MASK DOOR_BIND DOOR_CALL DOOR_CREATE DOOR_CRED
+        qw(DOOR_ATTR_MASK DOOR_BIND DOOR_CALL DOOR_CREATE
           DOOR_DELAY DOOR_DESCRIPTOR DOOR_EXIT DOOR_HANDLE DOOR_INFO
           DOOR_INVAL DOOR_IS_UNREF DOOR_LOCAL DOOR_PRIVATE DOOR_QUERY
           DOOR_RELEASE DOOR_RETURN DOOR_REVOKE DOOR_REVOKED DOOR_UNBIND
           DOOR_UNREF DOOR_UNREFSYS DOOR_UNREF_ACTIVE
           DOOR_UNREF_MULTI DOOR_WAIT S_IFDOOR)
     );
+    # For Solaris 10, Sun replaced DOOR_CRED with DOOR_UCRED
+    push @names, ($minor >= 10? 'DOOR_UCRED': 'DOOR_CRED');
+    if ($minor >= 10) { push @names,
+        # These macros are new in Solaris 10
+        'DOOR_REFUSE_DESC','DOOR_CREATE_MASK','DOOR_KI_CREATE_MASK' };
     ExtUtils::Constant::WriteConstants(
         NAME         => 'IPC::Door',
         NAMES        => \@names,
@@ -93,7 +99,9 @@ if (eval { require ExtUtils::Constant; 1 }) {
 else {
     use File::Copy;
     use File::Spec;
-    foreach my $file ('const-c.inc', 'const-xs.inc') {
+    my @const = ($minor >= 10)?
+        qw/const-c.inc_10 const-xs.inc_10/: qw/const-c.inc const-xs.inc/;
+    foreach my $file ( @const ) {
         my $fallback = File::Spec->catfile('fallback', $file);
         copy($fallback, $file) or die "Can't copy $fallback to $file: $!";
     }

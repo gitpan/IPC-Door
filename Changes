@@ -1,5 +1,8 @@
 Revision history for Perl extension IPC::Door.
 
+0.10  Sat May 22 23:30:24 CDT 2004
+    - Updated for Solaris 10 (some changes in API).
+
 0.09  Thu May  6 00:52:29 CDT 2004
     - Reverted to non-XS memory management in __call(), due to some
       problems in certain configurations.

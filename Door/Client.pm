@@ -1,5 +1,5 @@
 package IPC::Door::Client;
-#$Id: Client.pm,v 1.8 2004/05/03 07:39:34 asari Exp $
+#$Id: Client.pm,v 1.11 2004/05/09 16:39:04 asari Exp $
 
 use 5.006;
 use strict;
@@ -7,7 +7,6 @@ use warnings;
 
 use POSIX qw[ :fcntl_h ];
 use IPC::Door;
-use Devel::Peek;
 
 our @ISA = qw[ IPC::Door ];
 
@@ -42,7 +41,7 @@ IPC::Door::Client - door client for Solaris (>= 2.6)
 
     $dclient = new IPC::Door::Client($door);
 
-    $dclient-E<gt>call($arg[, $attr]);
+    $dclient->call($arg[, $attr]);
 
 =head2 DESCRIPTION
 
@@ -60,21 +59,7 @@ The default is C<O_RDWR>.
 
 =head1 SEE ALSO
 
-L<IPC::Door>, L<IPC::Door::Server>
-
-L<door_bind>(3DOOR),
-L<door_call>(3DOOR),
-L<door_create>(3DOOR),
-L<door_cred>(3DOOR),
-L<door_info>(3DOOR),
-L<door_return>(3DOOR),
-L<door_revoke>(3DOOR),
-L<door_server_create>(3DOOR),
-L<door_unbind>(3DOOR),
-
-L<UNIX Network Programming Volume 2: Interprocess Communications|http://www.kohala.com/start/unpv22e/unpv22e.html>
-
-L<Solaris Internals: Core Kernel Architecture|http://www.solarisinternals.com>
+L<IPC::Door>
 
 =head1 AUTHOR
 

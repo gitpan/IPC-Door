@@ -1,13 +1,15 @@
 #########################
 # Test script for IPC::Door
-# $Id: 06-tags-all.t,v 1.5 2004/05/01 07:59:59 asari Exp $
+# $Id: 06-tags-all.t,v 1.6 2004/05/23 04:14:10 asari Exp $
 
 # make sure the tags work
 
-use Test::More tests => 27;
+use Test::More tests => 30;
 use Fcntl;
 use strict;
 use POSIX qw( uname );
+my $release = (POSIX::uname())[2];
+my ($major, $minor) = split /\./, $release;
 BEGIN { use_ok('IPC::Door', qw(:all)) }
 
 # These are basically the same tests from 01 through 05, rehashed
@@ -15,8 +17,9 @@ BEGIN { use_ok('IPC::Door', qw(:all)) }
 
 # Don't skip these!
 is(DOOR_ATTR_MASK,
-    DOOR_UNREF | DOOR_PRIVATE | DOOR_UNREF_MULTI | DOOR_LOCAL | DOOR_REVOKED |
-      DOOR_IS_UNREF,
+    $minor >= 10?
+        DOOR_UNREF | DOOR_PRIVATE | DOOR_UNREF_MULTI | DOOR_REFUSE_DESC | DOOR_LOCAL | DOOR_REVOKED | DOOR_IS_UNREF:
+        DOOR_UNREF | DOOR_PRIVATE | DOOR_UNREF_MULTI | DOOR_LOCAL | DOOR_REVOKED | DOOR_IS_UNREF,
     'DOOR_ATTR_MASK'
 );
 is(DOOR_UNREF,        0x01,     'DOOR_UNREF');
@@ -27,6 +30,12 @@ is(DOOR_REVOKED,      0x08,     'DOOR_REVOKED');
 is(DOOR_IS_UNREF,     0x20,     'DOOR_IS_UNREF');
 is(DOOR_DELAY,        0x80000,  'DOOR_DELAY');
 is(DOOR_UNREF_ACTIVE, 0x100000, 'DOOR_UNREF_ACTIVE');
+SKIP: {
+    skip "Solaris 9 and earlier", 3 if $minor < 10;
+    is(DOOR_REFUSE_DESC, 0x40,  'DOOR_REFUSE_DESC');
+    is(DOOR_CREATE_MASK, (DOOR_UNREF | DOOR_PRIVATE | DOOR_UNREF_MULTI | DOOR_REFUSE_DESC ), 'DOOR_CREATE_MASK');
+    is(DOOR_KI_CREATE_MASK, (DOOR_UNREF | DOOR_UNREF_MULTI), 'DOOR_KI_CREATE_MASK');
+}
 
 is(DOOR_DESCRIPTOR, 0x10000, 'DOOR_DESCRIPTOR');
 
@@ -59,18 +68,26 @@ is(DOOR_REVOKE, 1, 'DOOR_REVOKE');
 is(DOOR_INFO,   2, 'DOOR_INFO');
 is(DOOR_CALL,   3, 'DOOR_CALL');
 is(DOOR_RETURN, 4, 'DOOR_RETURN');
-is(DOOR_CRED,   5, 'DOOR_CRED');
+
+# DOOR_CRED is removed in Solaris 10
+SKIP: {
+    skip "DOOR_CRED", 1 if $minor >= 10;
+    is(DOOR_CRED,   5, 'DOOR_CRED');
+}
+
 is(DOOR_BIND,   6, 'DOOR_BIND');
 is(DOOR_UNBIND, 7, 'DOOR_UNBIND');
 
 # DOOR_UNREFSYS is new in Solaris 9
 SKIP: {
-    my $release = (POSIX::uname())[2];
-    skip 'DOOR_UNREFSYS', 1 if $release < 5.9;
+    skip "DOOR_UNREFSYS", 1 if $minor < 9;
     is(DOOR_UNREFSYS, 8, 'DOOR_UNREFSYS');
 }
 
-# ...and don't forget
-is(S_IFDOOR, 0xD000, 'S_IFDOOR');
+# DOOR_UCRED is new in Solaris 10
+SKIP: {
+    skip "DOOR_UCRED", 1 if $minor < 10;
+    is(DOOR_UCRED, 9, 'DOOR_UCRED');
+}
 
 # done

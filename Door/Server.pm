@@ -1,5 +1,5 @@
 package IPC::Door::Server;
-#$Id: Server.pm,v 1.11 2004/05/06 03:09:48 asari Exp $
+#$Id: Server.pm,v 1.12 2004/05/06 06:40:54 asari Exp $
 
 use 5.006;
 use strict;
@@ -71,21 +71,7 @@ inside C<&mysub>.
 
 =head1 SEE ALSO
 
-L<IPC::Door>, L<IPC::Door::Client>
-
-L<door_bind>(3DOOR),
-L<door_call>(3DOOR),
-L<door_create>(3DOOR),
-L<door_cred>(3DOOR),
-L<door_info>(3DOOR),
-L<door_return>(3DOOR),
-L<door_revoke>(3DOOR),
-L<door_server_create>(3DOOR),
-L<door_unbind>(3DOOR),
-
-L<UNIX Network Programming Volume 2: Interprocess Communications|http://www.kohala.com/start/unpv22e/unpv22e.html>
-
-L<Solaris Internals: Core Kernel Architecture|http://www.solarisinternals.com>
+L<IPC::Door>
 
 =head1 AUTHOR
 

@@ -1,5 +1,5 @@
 #!PERL -w
-# $Id: door-server3.pl,v 1.8 2004/05/06 03:03:56 asari Exp $
+# $Id: door-server3.pl,v 1.9 2004/05/23 04:30:04 asari Exp $
 
 # this script will be forked and exec'd by 10-client-server3.t
 

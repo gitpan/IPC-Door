@@ -1,5 +1,5 @@
 #!PERL -w
-#$Id: benchmark.pl,v 1.12 2004/05/03 05:41:09 asari Exp $
+#$Id: benchmark.pl,v 1.13 2004/05/23 04:30:04 asari Exp $
 
 # A benchmark script to compare IPC through FIFO and doors.
 # Not exactly helpful for a couple of reasons.

@@ -1,5 +1,5 @@
 /*
-$Id: Door.xs,v 1.43 2004/05/06 05:51:01 asari Exp $
+$Id: Door.xs,v 1.46 2004/05/22 22:21:29 asari Exp $
 */
 #include "EXTERN.h"
 #include "perl.h"
@@ -15,6 +15,9 @@ $Id: Door.xs,v 1.43 2004/05/06 05:51:01 asari Exp $
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <door.h>
+#ifdef HAS_UCRED_H
+#include <ucred.h>
+#endif
 #include <sys/ddi.h>
 
 #include "const-c.inc"
@@ -37,7 +40,11 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
 
     ipc_door_data_t arg, retval;
     SV          *result;
+#ifdef _UCRED_H_
+    ucred_t     *info;
+#else
     door_cred_t info;
+#endif
     SV          *sv_callback; /* code reference */
     register SV *sv;          /* convenience variable */
     void        *tmp;
@@ -74,15 +81,33 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
         XPUSHs(sv);
     else {
         /* fall through; we shouldn't be here, but you never know. */
-        Perl_croak("Something went horribly wrong in servproc");
+        croak("Something went horribly wrong in servproc");
         return;
     }
 
     PUTBACK;
 
     /* grab the client's credentials before calling &main::serv */
+#ifdef _UCRED_H_
+/* the new way to get the client process credentials */
+    if (door_ucred(&info) < 0)
+        warn("door_ucred() failed");
+
+    /* make client's credentials available inside perl */
+    sv = get_sv("main::DOOR_CLIENT_EUID", TRUE);
+    sv_setiv(sv, ucred_geteuid(info));
+    sv = get_sv("main::DOOR_CLIENT_EGID", TRUE);
+    sv_setiv(sv, ucred_getruid(info));
+    sv = get_sv("main::DOOR_CLIENT_RUID", TRUE);
+    sv_setiv(sv, ucred_getegid(info));
+    sv = get_sv("main::DOOR_CLIENT_RGID", TRUE);
+    sv_setiv(sv, ucred_getrgid(info));
+    sv = get_sv("main::DOOR_CLIENT_PID", TRUE);
+    sv_setiv(sv, ucred_getpid(info));
+
+#else
     if (door_cred(&info) < 0)
-        Perl_warn("door_cred() failed");
+        warn("door_cred() failed");
 
     /* make client's credentials available inside perl */
     sv = get_sv("main::DOOR_CLIENT_EUID", TRUE);
@@ -95,6 +120,8 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
     sv_setiv(sv, info.dc_rgid);
     sv = get_sv("main::DOOR_CLIENT_PID", TRUE);
     sv_setiv(sv, info.dc_pid);
+
+#endif
 
     count = call_sv(sv_callback, G_SCALAR);
 
@@ -110,7 +137,7 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
     retval.len=SvLEN(result);
 
     if (door_return((char *) &retval, sizeof(retval),NULL,0) < 0)
-        Perl_croak("door_return() failed in servproc");
+        croak("door_return() failed in servproc");
 
     PUTBACK;
 

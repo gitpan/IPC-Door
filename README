@@ -1,4 +1,4 @@
-IPC/Door version 0.08
+IPC/Door version 0.10
 =============================
 
 NOTICE
@@ -49,10 +49,17 @@ I recommend that you read Makefile.PL to make sure you know what it
 does, and check the content of the "t" directory for what it tests, some
 examples, and a simple-minded benchmark script.
 
+If you are building with non-default "perl", then you may have to edit
+the shebang lines of t/*.pl to run tests successfully.
+
 DEPENDENCIES
 
 This module requires the door library.  This version assumes the API
 found in Solaris 2.6 and later.
+
+Sun revised portions of the Door API with Solaris 10.  While I am making
+my best effort to keep current with the changes, I also appreciate your
+bug reports if this module deviates from it.
 
 There is a project that attempts to implement the API in Linux.  See
 <http://ldoor.sourceforge.net> for more information.
@@ -67,4 +74,4 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
 
 -- 
-$Id: README,v 1.15 2004/05/06 03:10:18 asari Exp $
+$Id: README,v 1.16 2004/05/23 04:16:15 asari Exp $

@@ -1,5 +1,5 @@
 #!PERL -w
-# $Id: door-server2.pl,v 1.8 2004/05/04 19:13:01 asari Exp $
+# $Id: door-server2.pl,v 1.9 2004/05/23 04:30:04 asari Exp $
 
 # this script will be forked and exec'd by 09-client-server2.t
 
@@ -44,7 +44,7 @@ while ( !($ok_to_die) ) {
 sub term {
     my $sig = shift;
     $ok_to_die = 1;
-    unlink $door || warn "Can't remove $door.\n";
+#    unlink $door || warn "Can't remove $door.\n";
 
     #	print STDERR "$0: Caught signal $sig.\n";
 }

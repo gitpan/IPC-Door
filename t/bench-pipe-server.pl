@@ -1,5 +1,5 @@
 #!PERL -w
-#$Id: bench-pipe-server.pl,v 1.6 2004/05/03 05:41:09 asari Exp $
+#$Id: bench-pipe-server.pl,v 1.7 2004/05/23 04:30:04 asari Exp $
 use strict;
 use File::Basename;
 use Fcntl;

@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.35.
+signed via the Module::Signature module, version 0.38.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -14,40 +14,40 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 688c7dc89358184a0b100a9bac5df6ae950c0b78 Changes
-SHA1 ffc42f248843b37fa56b553cf98edfce2c8844b5 Door.pm
-SHA1 ecfd82521478da8f79c199afa42cfb525f7aa31d Door.xs
-SHA1 ec02152650389830657775ac65675bf499abf4ac Door/Client.pm
-SHA1 7b6f76a5988c62e147408912c35c7938163a9f0e Door/Server.pm
-SHA1 60e48680c673a22fd004bea780e7b9b9754114e4 MANIFEST
-SHA1 787f9d2f78eb5f6af48d5d02e73a21c2dbfadf5d META.yml
-SHA1 2e4ce61eba16348b3ee537054b3fdb6051e5e6d1 Makefile.PL
-SHA1 aa3cc7e2189b3b61da7be7beaef6725b74ddf46e README
-SHA1 86eeecd13b2a84b265ab741251ba7d4dcad51b2d const-c.inc
-SHA1 dffa9821b49d21ec4d07e9314de27092bb810fb4 const-xs.inc
+SHA1 91648b3bb4b493da7dfe63f4cff6c62398b14e3a Changes
+SHA1 98032f870f949fa2da0ac3edec8e24638f8315bc Door.pm
+SHA1 a250770c2a35f9f06b6b8d2d2278949a91c3ab9f Door.xs
+SHA1 4fdf0d17a18cf374b5713ce184cf53ddcb8858ff Door/Client.pm
+SHA1 12d9dc538f3466efe9d9a4313ea433eaf703880b Door/Server.pm
+SHA1 e39553f49a68e889edaaaba296776df6a14afa5f MANIFEST
+SHA1 bfbf34fc399415127b37fb89f52ae93a9cad603a META.yml
+SHA1 1ec4da21c15f776935c983b58b2b060d89623030 Makefile.PL
+SHA1 3a4b9743bb74fa673429cf94244f46317803e045 README
 SHA1 86eeecd13b2a84b265ab741251ba7d4dcad51b2d fallback/const-c.inc
+SHA1 64d27a4f91b7c705aec77d1bcaa683f346bb9fd6 fallback/const-c.inc_10
 SHA1 dffa9821b49d21ec4d07e9314de27092bb810fb4 fallback/const-xs.inc
+SHA1 36b84e70a474c07534488967fb2e4de7a0c2757c fallback/const-xs.inc_10
 SHA1 115da7144f264305baa5ac074fc5b8cd64aa734b ppport.h
-SHA1 18f687f817d997435cf56cc6210c1d125a77dbb2 t/01-tags-attr.t
+SHA1 7e33f4f0742e4974c17dc59e630a121d1c280fd9 t/01-tags-attr.t
 SHA1 591f8832bf3840dfa8489f1c4dcfdf3ecc1d02b5 t/02-tags-attr_desc.t
 SHA1 5b2c77a01b2855985b863ac52a400716021d9997 t/03-tags-desc.t
 SHA1 9a7c32fec6b04dc7342f39ffce69f24503ed9297 t/04-tags-errors.t
-SHA1 e763d9db8ba48228b8b78dd5df00d178ee3fa482 t/05-tags-subcodes.t
-SHA1 6b93d44e8a0482527a150ac530347d523e0efef2 t/06-tags-all.t
-SHA1 9586fff2817c1d59af6866472141294dd03c5d48 t/07-main.t
+SHA1 b588bdb168f1f6394abb2be4664b5214886a6beb t/05-tags-subcodes.t
+SHA1 a062ea2d6a5f7a707cdf2f4f41fdc0233de0df29 t/06-tags-all.t
+SHA1 043871497301f5effd38ec5bf6d16a81ce0477ef t/07-main.t
 SHA1 8840a05f2d57cf9be01cff4c483e95c89d913164 t/08-client-server.t
 SHA1 fd5bda5f68be4d72f4fc3e0e25ab581b79bd4970 t/09-client-server2.t
 SHA1 e904a298ce48278f2fc45a71f4d965e76f74feed t/10-client-server3.t
-SHA1 73a4c256ce5a09587cca57418d528900d6582887 t/bench-door-server.pl
-SHA1 f4608070887a8642b1456d076680bca476f4340c t/bench-pipe-server.pl
-SHA1 94a83b920582f463ddbd1eb52b422111500f538a t/benchmark.pl
-SHA1 8bdaf3bd354fa075c6a997073b47ebbc372876f9 t/door-server.pl
-SHA1 d1059db3f37f2e6f8fa59057b00710f7901b0afb t/door-server2.pl
-SHA1 d1d89a1485cb3a8022c2689291c09e3fadbd9edb t/door-server3.pl
+SHA1 d4d370a42c5ad5e37c71edab908635bdfb43609d t/bench-door-server.pl
+SHA1 67f03876b0e8d35c440e47b342f264f1d06440ad t/bench-pipe-server.pl
+SHA1 537113283bb66391125b20320d56e238052f4574 t/benchmark.pl
+SHA1 dc2f1ebba3f36c58cbecdab244f4fec4f8b2a5d5 t/door-server.pl
+SHA1 3e9cb014af983110e70d94eb5890e62a0b1b7eb0 t/door-server2.pl
+SHA1 141a0032944ef7696fb34f5faea9eac3bd11a77f t/door-server3.pl
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (SunOS)
 
-iD8DBQFAmdPLoXhPvmJPsrERAtfUAJ4r3hjFENlrnYAInAAsGIgfmrKXeQCgguOj
-6Ps+WbuNz7/8Td6d+W2g5fU=
-=smY3
+iD8DBQFAsCmxoXhPvmJPsrERAv+vAJ41FSsb+4lPpE5ljjtetD4A12LwcACffODd
+qHE3TWyoEP4ElvWs9AwuPxw=
+=MHh0
 -----END PGP SIGNATURE-----
