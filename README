@@ -1,5 +1,12 @@
-IPC/Door version 0.03
+IPC/Door version 0.06
 =============================
+
+NOTICE
+
+This software is of ALPHA quality.  API is in flux and may be changed
+without notice.  Deploy in production environment at your own risk.
+
+Comments are welcome.  Please contact the author if you have any.
 
 INTRODUCTION
 
@@ -24,8 +31,8 @@ The doors are a fast IPC mechanism on a local machine.
 	server thread to be scheduled to complete the request."
 			--Jim Mauro and Richard McDougal, "Solaris Internals," 2001
 
-In an informal benchmarking, the current implementation of IPC::Door
-has been shown to be about 3 times faster than the two-way named pipes.
+See, for example,
+<http://docs.sun.com/db/doc/817-0697/6mgfsdh2p?q=door&a=expand#D>
 
 INSTALLATION
 
@@ -46,13 +53,10 @@ There is a project that attempts to implement the API in Linux.  See
 
 COPYRIGHT AND LICENCE
 
-Put the correct copyright and licence information here.
-
-Copyright (C) 2003 ASARI Hirotsugu
+Copyright (C) 2003, 2004 ASARI Hirotsugu
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
 
 -- 
-$Date: 2003/09/03 12:21:45 $
-$Id: README,v 1.6 2003/09/03 12:21:45 asari Exp $
+$Id: README,v 1.12 2004/05/01 16:24:51 asari Exp $

@@ -1,4 +1,5 @@
 package IPC::Door::Client;
+#$Id: Client.pm,v 1.7 2004/05/01 08:01:20 asari Exp $
 
 use 5.006;
 use strict;
@@ -6,20 +7,26 @@ use warnings;
 
 use POSIX qw[ :fcntl_h ];
 use IPC::Door;
+use Devel::Peek;
 
 our @ISA = qw[ IPC::Door ];
 
+my $ans;
+
 sub call {
-	my $self = shift;
-	my $path = $self->{'path'};
+    my $self = shift;
+    my $path = $self->{'path'};
 
-	my $arg  = shift;
-	my $attr = shift;
+    my $arg  = shift;
+    my $attr = shift || O_RDWR;
 
-	return $self->__call($path, $arg, $attr);
+    eval { $ans = $self->__call($path, $arg, $attr) };
+    croak $@ if $@;
+    return $ans;
+
 }
 
-1;	# end of IPC::Door::Client
+1;    # end of IPC::Door::Client
 
 __END__
 
@@ -35,7 +42,7 @@ C<$door='/path/to/door';>
 
 C<$dclient = new IPC::Door::Client($door);>
 
-C<$dclient-E<gt>call($arg, $attr);>
+C<$dclient-E<gt>call($arg[, $attr]);>
 
 =head2 DESCRIPTION
 
@@ -47,8 +54,9 @@ It is a subclass of C<IPC::Door>.
 
 The only unique method, C<call> implicitly calls C<open>(2)
 (not to be confused with the Perl function L<open>),
-so you must pass flags for that call.
-The standard module L<Fcntl> exports useful ones.
+and you can optionally pass flags for that call.
+Note that the standard module L<Fcntl> exports useful ones.
+The default is C<O_RDWR>.
 
 =head1 SEE ALSO
 
@@ -76,7 +84,7 @@ L<http://www.asari.net/perl>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003 by ASARI Hirotsugu
+Copyright 2003, 2004 by ASARI Hirotsugu
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

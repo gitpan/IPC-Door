@@ -1,4 +1,5 @@
 package IPC::Door::Server;
+#$Id: Server.pm,v 1.9 2004/05/01 08:01:20 asari Exp $
 
 use 5.006;
 use strict;
@@ -9,7 +10,7 @@ use IPC::Door;
 
 our @ISA = qw[ IPC::Door ];
 
-1;	# end of IPC::Door::Server
+1;    # end of IPC::Door::Server
 
 __END__
 
@@ -34,16 +35,19 @@ When a door client sends a request through its door,
 the C<IPC::Door::Server> passes the data to C<&mysub>, and sends its
 return value to the client.
 
-Right now, C<&mysub> must be a subroutine that takes one scalar (which
-is typecast to a double) and returns one scalar (which is also typecast
-to a double).
-Since the argument(s) and return value(s) must be compiled into the
-shared object file, this restriction will not be too much more liberal.
-(Perhaps we can pass references back and forth.)
+=head2 SERVER PROCESS
+
+Each C<IPC::Door::Server> object is associated with a server process
+(C<&mysub> throughout this documentation).
+C<&mysub> must take exactly one scalar and return exactly one scalar.
+
+Currently, these arguments can't be a reference or any other data
+structure.
+See <IPC::Door/"KNOWN ISSUES">.
 
 =head2 SPECIAL VARIABLES
 
-One a door client calls an C<IPC::Door::Server> object, it sets 5
+Once a door client calls an C<IPC::Door::Server> object, it sets 5
 special variables as a result of C<door_cred>(3DOOR) call.
 These are:
 C<$main::DOOR_CLIENT_EUID>,
@@ -51,14 +55,16 @@ C<$main::DOOR_CLIENT_EGID>,
 C<$main::DOOR_CLIENT_RUID>,
 C<$main::DOOR_CLIENT_RGID>,
 C<$main::DOOR_CLIENT_PID>,
-and their meanings should be pretty self-explanatory;
-i.e., the client process's effective user id, effective group id,
-real user id, real group id, and process id.
+and their meanings should be pretty self-explanatory.
 
 If it makes sense, you can discriminate against client processes
 inside C<&mysub>.
 (It doesn't make much sense to do anything with these variables outside
 &mysub, anyway.)
+
+Note that if there are more than one door clients are connected
+to a single C<IPC::Door::Server> process, the race condition exists
+and these variables may hold incorrect values.
 
 =head1 SEE ALSO
 
@@ -86,7 +92,7 @@ L<http://www.asari.net/perl>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003 by ASARI Hirotsugu
+Copyright 2003, 2004 by ASARI Hirotsugu
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

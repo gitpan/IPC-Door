@@ -4,8 +4,12 @@ Door.xs
 Door/Client.pm
 Door/Server.pm
 MANIFEST
+META.yml                                 Module meta-data (added by MakeMaker)
 Makefile.PL
 README
+SIGNATURE
+const-c.inc
+const-xs.inc
 fallback/const-c.inc
 fallback/const-xs.inc
 ppport.h
@@ -16,6 +20,12 @@ t/04-tags-errors.t
 t/05-tags-subcodes.t
 t/06-tags-all.t
 t/07-main.t
-t/benchmark-server-door.pl
-t/benchmark-server-pipe.pl
+t/08-client-server.t
+t/09-client-server2.t
+t/10-client-server3.t
+t/bench-door-server.pl
+t/bench-pipe-server.pl
 t/benchmark.pl
+t/door-server.pl
+t/door-server2.pl
+t/door-server3.pl

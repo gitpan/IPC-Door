@@ -1,9 +1,23 @@
 Revision history for Perl extension IPC::Door.
 
-0.03
+0.06  Sat May  1 11:07:15 CDT 2004
+	- Now the only data that you can send through the door are strings.
+
+0.05
+	- No public release.
+
+0.04  Mon Apr  5 00:16:20 CDT 2004
+	- No public release.
+	- servproc() now takes one scalar and returns one scalar.
+	  It probably should be more intelligent to deal with other
+	  kinds of input/output.
+	- SIGNATURE file is added.  You can verify the integrity of each file
+	  with Module::Signature.
+
+0.03  Wed Sep  3 22:41:22 CDT 2003
 	- Implemented door_cred(), door_info() (with some limitations)
 	- Split Door.pm into three files: Door.pm, Door/Client.pm,
-Door/Server.pm
+	  Door/Server.pm
 	- Added AutoLoader support (basically redid h2xs without '-A')
 	- More robust test scripts
 	- No longer tied to &main::serv.
@@ -13,5 +27,5 @@ Door/Server.pm
 
 0.01  Mon Aug 18 21:10:23 2003
 	- original version; created by h2xs 1.22 with options
-		-A -n IPC::Door
+	    -A -n IPC::Door
 
