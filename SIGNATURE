@@ -14,16 +14,16 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 0f068eb6b8e5fc6e45300930af7ba16a59443f50 Changes
-SHA1 d2747b67a179f02c9f1e955505a47bc33fb6f6f7 Door.pm
-SHA1 104a6a28398f437429831a142ad0e152c6058aec Door.xs
+SHA1 688c7dc89358184a0b100a9bac5df6ae950c0b78 Changes
+SHA1 ffc42f248843b37fa56b553cf98edfce2c8844b5 Door.pm
+SHA1 ecfd82521478da8f79c199afa42cfb525f7aa31d Door.xs
 SHA1 ec02152650389830657775ac65675bf499abf4ac Door/Client.pm
 SHA1 7b6f76a5988c62e147408912c35c7938163a9f0e Door/Server.pm
 SHA1 60e48680c673a22fd004bea780e7b9b9754114e4 MANIFEST
-SHA1 595452687b52bac6aaf18292dd16ba51ddbde02e META.yml
+SHA1 787f9d2f78eb5f6af48d5d02e73a21c2dbfadf5d META.yml
 SHA1 2e4ce61eba16348b3ee537054b3fdb6051e5e6d1 Makefile.PL
 SHA1 aa3cc7e2189b3b61da7be7beaef6725b74ddf46e README
-SHA1 9a6e6422c7c59deb94f1b8d4c2f6b1b5ae792b6d const-c.inc
+SHA1 86eeecd13b2a84b265ab741251ba7d4dcad51b2d const-c.inc
 SHA1 dffa9821b49d21ec4d07e9314de27092bb810fb4 const-xs.inc
 SHA1 86eeecd13b2a84b265ab741251ba7d4dcad51b2d fallback/const-c.inc
 SHA1 dffa9821b49d21ec4d07e9314de27092bb810fb4 fallback/const-xs.inc
@@ -47,7 +47,7 @@ SHA1 d1d89a1485cb3a8022c2689291c09e3fadbd9edb t/door-server3.pl
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (SunOS)
 
-iD8DBQFAmaz/oXhPvmJPsrERAntDAKDxQkZryQeQ2CSKcz1eqU5c8FZQ3wCgmR6Y
-HmSiu+i4evuwuBEHawq5dAc=
-=To16
+iD8DBQFAmdPLoXhPvmJPsrERAtfUAJ4r3hjFENlrnYAInAAsGIgfmrKXeQCgguOj
+6Ps+WbuNz7/8Td6d+W2g5fU=
+=smY3
 -----END PGP SIGNATURE-----

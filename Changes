@@ -1,40 +1,44 @@
 Revision history for Perl extension IPC::Door.
 
+0.09  Thu May  6 00:52:29 CDT 2004
+    - Reverted to non-XS memory management in __call(), due to some
+      problems in certain configurations.
+
 0.08  Wed May  5 21:39:58 CDT 2004
-	- More complex data structures can be passed between the server and
-	  the client with the help of the Storable module (if available).
-	- Fixed the error in SIGNATURE.
-	- Memory management the XS way (sometimes).
+    - More complex data structures can be passed between the server and
+      the client with the help of the Storable module (if available).
+    - Fixed the error in SIGNATURE.
+    - Memory management the XS way (sometimes).
 
 0.07  Sun May  2 03:44:40 CDT 2004
-	- Removed C99-style comments for compatibility with older compilers.
+    - Removed C99-style comments for compatibility with older compilers.
 
 0.06  Sat May  1 11:07:15 CDT 2004
-	- Now the only data that you can send through the door are strings.
+    - Now the only data that you can send through the door are strings.
 
 0.05
-	- No public release.
+    - No public release.
 
 0.04  Mon Apr  5 00:16:20 CDT 2004
-	- No public release.
-	- servproc() now takes one scalar and returns one scalar.
-	  It probably should be more intelligent to deal with other
-	  kinds of input/output.
-	- SIGNATURE file is added.  You can verify the integrity of each file
-	  with Module::Signature.
+    - No public release.
+    - servproc() now takes one scalar and returns one scalar.
+      It probably should be more intelligent to deal with other
+      kinds of input/output.
+    - SIGNATURE file is added.  You can verify the integrity of each file
+      with Module::Signature.
 
 0.03  Wed Sep  3 22:41:22 CDT 2003
-	- Implemented door_cred(), door_info() (with some limitations)
-	- Split Door.pm into three files: Door.pm, Door/Client.pm,
-	  Door/Server.pm
-	- Added AutoLoader support (basically redid h2xs without '-A')
-	- More robust test scripts
-	- No longer tied to &main::serv.
+    - Implemented door_cred(), door_info() (with some limitations)
+    - Split Door.pm into three files: Door.pm, Door/Client.pm,
+      Door/Server.pm
+    - Added AutoLoader support (basically redid h2xs without '-A')
+    - More robust test scripts
+    - No longer tied to &main::serv.
 
 0.02  Thu Aug 28 23:07:59 CDT 2003
-	- First public release
+    - First public release
 
 0.01  Mon Aug 18 21:10:23 2003
-	- original version; created by h2xs 1.22 with options
-	    -A -n IPC::Door
+    - original version; created by h2xs 1.22 with options
+        -A -n IPC::Door
 

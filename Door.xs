@@ -1,5 +1,5 @@
 /*
-$Id: Door.xs,v 1.42 2004/05/06 03:10:18 asari Exp $
+$Id: Door.xs,v 1.43 2004/05/06 05:51:01 asari Exp $
 */
 #include "EXTERN.h"
 #include "perl.h"
@@ -190,42 +190,42 @@ __create(sv_class, sv_path, sv_callback)
     SV *sv_class
     SV *sv_path
     SV *sv_callback
-    PROTOTYPE: $$$
-    CODE:
-        SV   *sv_server = SvRV(sv_class); /* IPC::Door::Server object */
-        int  fd;
-        char *path      = SvPV(sv_path, PL_na);
-        char *callback  = SvPV(sv_callback, PL_na);
+PROTOTYPE: $$$
+CODE:
+    SV   *sv_server = SvRV(sv_class); /* IPC::Door::Server object */
+    int  fd;
+    char *path      = SvPV(sv_path, PL_na);
+    char *callback  = SvPV(sv_callback, PL_na);
 
-        /* Make sure sv_server is sane */
-        if (!sv_isobject(sv_class)) {
-            warn("Non-object passed in __create()");
+    /* Make sure sv_server is sane */
+    if (!sv_isobject(sv_class)) {
+        warn("Non-object passed in __create()");
+        XSRETURN_UNDEF;
+    }
+
+    /* Make sure that sv_callback is sane */
+    if (!SvROK(sv_callback) || (SvTYPE(SvRV(sv_callback)) != SVt_PVCV)) {
+        warn("%s is not a code reference.", callback);
+        XSRETURN_UNDEF;
+    }
+
+    /* set sv_callback */
+    sv_callback = *(hv_fetch((HV *)sv_server, "callback", 8, FALSE));
+
+    if ((fd = door_create(servproc, sv_callback, 0)) < 0) {
+        /* Why did it fail? */
+        warn("door_create() failed");
+        if (close(fd) < 0) warn("close() failed\n");
+        XSRETURN_UNDEF;
+    } else {
+        /* need to trap potential errors here */
+        close(open(path, O_CREAT | O_RDWR, FILE_MODE));
+        if ( (RETVAL=fattach(fd, path)) < 0) {
+            warn("fattach() failed");
             XSRETURN_UNDEF;
         }
+    }
 
-        /* Make sure that sv_callback is sane */
-        if (!SvROK(sv_callback) || (SvTYPE(SvRV(sv_callback)) != SVt_PVCV)) {
-            warn("%s is not a code reference.", callback);
-            XSRETURN_UNDEF;
-        }
-
-        /* set sv_callback */
-        sv_callback = *(hv_fetch((HV *)sv_server, "callback", 8, FALSE));
-
-
-        if ((fd = door_create(servproc, sv_callback, 0)) < 0) {
-            /* Why did it fail? */
-            warn("door_create() failed");
-            if (close(fd) < 0) warn("close() failed\n");
-            XSRETURN_UNDEF;
-        } else {
-            /* need to trap potential errors here */
-            close(open(path, O_CREAT | O_RDWR, FILE_MODE));
-            if ( (RETVAL=fattach(fd, path)) < 0) {
-                warn("fattach() failed");
-                XSRETURN_UNDEF;
-            }
-        }
 
 MODULE=IPC::Door    PACKAGE=IPC::Door::Client
 SV *
@@ -234,59 +234,65 @@ __call(sv_class, sv_path, sv_input, sv_attr)
     SV * sv_path
     SV * sv_input
     SV * sv_attr
-    CODE:
-        char *class  = SvPV(sv_class, PL_na);
-        char *path   = SvPV(sv_path, PL_na);
-        int attr     = SvIV(sv_attr);
-        int fd;
-        ipc_door_data_t servproc_in, servproc_out;
-        door_arg_t arg;
-        SV   *output;
-        char *s;
+CODE:
+    char *class  = SvPV(sv_class, PL_na);
+    char *path   = SvPV(sv_path, PL_na);
+    int attr     = SvIV(sv_attr);
+    int fd;
+    ipc_door_data_t servproc_in, servproc_out;
+    door_arg_t arg;
+    SV   *output;
+    char *s;
 
-        ENTER;
-        SAVETMPS;
+    ENTER;
+    SAVETMPS;
 
-        if ((fd = open(path, attr)) < 0) {
-            warn("Failed to open %s",path);
+    if ((fd = open(path, attr)) < 0) {
+        warn("Failed to open %s",path);
+        XSRETURN_UNDEF;
+    };
+
+    if ( memmove((char*)servproc_in.ipc_door_data_pv, SvPV(sv_input, PL_na), MAX_STRING) == NULL )
+        XSRETURN_UNDEF;
+    else {
+        servproc_in.cur=(int)SvCUR(sv_input);
+        servproc_in.len=(int)SvLEN(sv_input);
+    };
+
+    arg.data_ptr  = (char *) &servproc_in;
+    arg.data_size = sizeof(servproc_in);
+    arg.desc_ptr  = NULL;
+    arg.desc_num  = 0;
+    arg.rbuf      = (char *) &servproc_out;
+    arg.rsize     = sizeof(servproc_out);
+
+    if (door_call(fd, &arg) < 0) {
+        warn("door_call() failed");
+        if (close(fd) < 0) croak ("close() failed\n");
+        XSRETURN_UNDEF;
+    } else {
+        if (close(fd) < 0) croak ("close() failed\n");
+
+        /* Coerce output into something we can return to perl */
+        /* Newz(0, (void*)s, 1, typeof(servproc_in.ipc_door_data_pv)); */
+        if (((char*)s=calloc(MAX_STRING,sizeof(char))) == NULL)
             XSRETURN_UNDEF;
-        };
-
-        Move(SvPV(sv_input, PL_na), (char*)servproc_in.ipc_door_data_pv,1,typeof(servproc_in.ipc_door_data_pv));
-        servproc_in.cur = (int)SvCUR(sv_input);
-        servproc_in.len = (int)SvLEN(sv_input);
-
-        arg.data_ptr  = (char *) &servproc_in;
-        arg.data_size = sizeof(servproc_in);
-        arg.desc_ptr  = NULL;
-        arg.desc_num  = 0;
-        arg.rbuf      = (char *) &servproc_out;
-        arg.rsize     = sizeof(servproc_out);
-
-        if (door_call(fd, &arg) < 0) {
-            warn("door_call() failed");
-            if (close(fd) < 0) croak ("close() failed\n");
+        output = sv_newmortal();
+        servproc_out.ipc_door_data_pv[MAX_STRING-1]='\0';
+        if ( memmove(s, servproc_out.ipc_door_data_pv, MAX_STRING) == NULL )
             XSRETURN_UNDEF;
-        } else {
-            if (close(fd) < 0) croak ("close() failed\n");
+        output = newSVpv( "", 0 );
+        SvGROW(output,MAX_STRING);
+        memmove((void*)SvPVX(output), s, MAX_STRING);
+        /* Move(s,SvPVX(output),1,typeof(servproc_in.ipc_door_data_pv)); */
+        SvCUR(output) = servproc_out.cur;
+        SvLEN(output) = servproc_out.len;
+        free(s);
 
-            /* Coerce output into something we can return to perl */
-            Newz(0, (void*)s, 1, typeof(servproc_in.ipc_door_data_pv));
-            output = sv_newmortal();
-            servproc_out.ipc_door_data_pv[MAX_STRING-1]='\0';
-            Move(servproc_out.ipc_door_data_pv,s,1,typeof(servproc_out.ipc_door_data_pv));
-            output = newSVpv( "", 0 );
-            SvGROW(output,MAX_STRING);
-            Move(s,SvPVX(output),1,typeof(servproc_in.ipc_door_data_pv));
-            SvCUR(output) = servproc_out.cur;
-            SvLEN(output) = servproc_out.len;
-            Safefree(s);
+        FREETMPS;
+        LEAVE;
 
-            FREETMPS;
-            LEAVE;
-
-            RETVAL = (SV *)output;
-        }
-
-    OUTPUT:
-        RETVAL
+        RETVAL = (SV *)output;
+    }
+OUTPUT:
+    RETVAL

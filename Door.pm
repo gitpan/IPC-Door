@@ -1,4 +1,4 @@
-# $Id: Door.pm,v 1.33 2004/05/06 03:08:45 asari Exp $
+# $Id: Door.pm,v 1.34 2004/05/06 05:55:54 asari Exp $
 
 =head1 NAME
 
@@ -172,7 +172,7 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 require XSLoader;
 XSLoader::load('IPC::Door', $VERSION);
@@ -277,7 +277,6 @@ sub info ($) {
 sub DESTROY {
     my $self = shift;
 
-    ;
 }
 
 1;    # end of IPC::Door

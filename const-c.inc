@@ -284,7 +284,7 @@ constant (pTHX_ const char *name, STRLEN len, IV *iv_return) {
      Regenerate these constant functions by feeding this entire source file to
      perl -x
 
-#!/usr/local/bin/perl -w
+#!perl -w
 use ExtUtils::Constant qw (constant_types C_constant XS_constant);
 
 my $types = {map {($_, 1)} qw(IV)};
