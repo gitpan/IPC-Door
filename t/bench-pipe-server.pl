@@ -1,5 +1,5 @@
 #!PERL -w
-#$Id: bench-pipe-server.pl,v 1.4 2004/05/01 16:23:18 asari Exp $
+#$Id: bench-pipe-server.pl,v 1.6 2004/05/03 05:41:09 asari Exp $
 use strict;
 use File::Basename;
 use Fcntl;
@@ -7,38 +7,39 @@ use Fcntl;
 $SIG{INT}  = \&term;
 $SIG{TERM} = \&term;
 
-my ($base, $path, $suffix) = fileparse($0, qr(\.[t|pl]));
+my ( $base, $path, $suffix ) = fileparse( $0, qr(\.[t|pl]) );
 
 my $read_pipe  = $path . 'SERVER_PIPE';
 my $write_pipe = $path . 'CLIENT_PIPE';
 
-unless (-p $write_pipe) {
-    if (-e _) {
+unless ( -p $write_pipe ) {
+    if ( -e _ ) {
         die "$0: Won't overwrite $write_pipe\n";
     }
     else {
         require POSIX;
-        POSIX::mkfifo($write_pipe, 0666)
+        POSIX::mkfifo( $write_pipe, 0666 )
           or die "Can't create $write_pipe: $!\n";
     }
 }
 
-unless (-p $read_pipe) {
-    if (-e _) {
+unless ( -p $read_pipe ) {
+    if ( -e _ ) {
         die "$0: Won't overwrite $read_pipe\n";
     }
     else {
         require POSIX;
-        POSIX::mkfifo($read_pipe, 0666) or die "Can't create $read_pipe: $!\n";
+        POSIX::mkfifo( $read_pipe, 0666 )
+          or die "Can't create $read_pipe: $!\n";
     }
 }
 
 while (1) {
     die "Pipe $read_pipe disappeared\n" unless -p $read_pipe;
 
-    sysopen(SERVER_PIPE, $read_pipe, O_RDONLY)
+    sysopen( SERVER_PIPE, $read_pipe, O_RDONLY )
       or die "Can't write to $read_pipe: $!";
-    sysopen(CLIENT_PIPE, $write_pipe, O_WRONLY)
+    sysopen( CLIENT_PIPE, $write_pipe, O_WRONLY )
       or die "Can't read to $write_pipe: $!";
 
     my $arg = <SERVER_PIPE>;

@@ -1,4 +1,4 @@
-IPC/Door version 0.07
+IPC/Door version 0.08
 =============================
 
 NOTICE
@@ -7,6 +7,8 @@ This software is of ALPHA quality.  API is in flux and may be changed
 without notice.  Deploy in production environment at your own risk.
 
 Comments are welcome.  Please contact the author if you have any.
+
+For more information, consult the POD documentation in the module files.
 
 INTRODUCTION
 
@@ -43,6 +45,10 @@ To install this module type the following:
    make test
    make install
 
+I recommend that you read Makefile.PL to make sure you know what it
+does, and check the content of the "t" directory for what it tests, some
+examples, and a simple-minded benchmark script.
+
 DEPENDENCIES
 
 This module requires the door library.  This version assumes the API
@@ -55,8 +61,10 @@ COPYRIGHT AND LICENCE
 
 Copyright (C) 2003, 2004 ASARI Hirotsugu
 
+asarih at cpan dot org
+
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
 
 -- 
-$Id: README,v 1.12 2004/05/01 16:24:51 asari Exp $
+$Id: README,v 1.15 2004/05/06 03:10:18 asari Exp $

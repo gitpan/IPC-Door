@@ -1,6 +1,6 @@
 #########################
 # Test script for IPC::Door
-# $Id: 10-client-server3.t,v 1.3 2004/05/01 07:59:59 asari Exp $
+# $Id: 10-client-server3.t,v 1.5 2004/05/06 03:03:56 asari Exp $
 
 use Test::More tests => 1;
 use strict;
@@ -9,7 +9,7 @@ use Fcntl;
 #BEGIN { use_ok ('IPC::Door::Client') }
 #BEGIN { use_ok ('IPC::Door::Server') }
 use IPC::Door::Client;
-use IPC::Door::Server;
+#use IPC::Door::Server;
 
 use File::Basename;
 use Devel::Peek;
@@ -21,10 +21,7 @@ SKIP: {
 
     skip "Storable not installed", 1 if $@;
 
-  TODO: {
-        local $TODO = "Not yet very Storable-friendly";
-
-        my ($base, $path, $suffix) = fileparse($0, qr(\.[t|pl]));
+        my ($base, $path, $suffix) = fileparse($0, qr(\.[t|pl]$));
         my $dserver_pid;
         my $dserver_script = $path . "door-server3.pl";
         my $door           = $path . 'DOOR';
@@ -54,12 +51,11 @@ SKIP: {
         # sleep a little while to make sure that the door server has been forked
         select undef, undef, undef, 2;
 
-        my @array = (1, 2, 3);
+        my @array = (1..1000);
+        my @ans   = reverse @array;
 
         my $str = Storable::freeze(\@array);
 
-        #print "sending:\n";
-        #Dump($str);
         my $ans;
         if ($dclient->is_door) {
             $ans = $dclient->call($str, O_RDWR);
@@ -69,11 +65,9 @@ SKIP: {
         }
 
         $ans = '' unless defined($ans);
-        is_deeply($ans, \@array, 'door-server3');
+        is_deeply( \@{Storable::thaw($ans)} , \@ans, 'door-server3');
 
         select undef, undef, undef, 2;
         kill "TERM", $dserver_pid;
-
-    }    # end of TODO: block
 
 }    # end of SKIP: block

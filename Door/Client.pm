@@ -1,5 +1,5 @@
 package IPC::Door::Client;
-#$Id: Client.pm,v 1.7 2004/05/01 08:01:20 asari Exp $
+#$Id: Client.pm,v 1.8 2004/05/03 07:39:34 asari Exp $
 
 use 5.006;
 use strict;
@@ -36,13 +36,13 @@ IPC::Door::Client - door client for Solaris (>= 2.6)
 
 =head2 SYNOPSIS
 
-C<use IPC::Door::Client;>
+    use IPC::Door::Client;
 
-C<$door='/path/to/door';>
+    $door='/path/to/door';
 
-C<$dclient = new IPC::Door::Client($door);>
+    $dclient = new IPC::Door::Client($door);
 
-C<$dclient-E<gt>call($arg[, $attr]);>
+    $dclient-E<gt>call($arg[, $attr]);
 
 =head2 DESCRIPTION
 

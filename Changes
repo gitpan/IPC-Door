@@ -1,5 +1,11 @@
 Revision history for Perl extension IPC::Door.
 
+0.08  Wed May  5 21:39:58 CDT 2004
+	- More complex data structures can be passed between the server and
+	  the client with the help of the Storable module (if available).
+	- Fixed the error in SIGNATURE.
+	- Memory management the XS way (sometimes).
+
 0.07  Sun May  2 03:44:40 CDT 2004
 	- Removed C99-style comments for compatibility with older compilers.
 

@@ -1,5 +1,5 @@
 #!PERL -w
-#$Id: bench-door-server.pl,v 1.4 2004/05/01 16:23:18 asari Exp $
+#$Id: bench-door-server.pl,v 1.6 2004/05/03 05:41:09 asari Exp $
 
 use strict;
 use File::Basename;
@@ -11,7 +11,7 @@ use IPC::Door::Server;
 $SIG{INT}  = \&term;
 $SIG{TERM} = \&term;
 
-my ($base, $path, $suffix) = fileparse($0, qr(\.[t|pl]));
+my ( $base, $path, $suffix ) = fileparse( $0, qr(\.[t|pl]) );
 my $door = $path . 'DOOR';
 
 sub serv {
@@ -20,13 +20,13 @@ sub serv {
     return $arg**2;
 }
 
-my $server = new IPC::Door::Server($door, \&serv)
+my $server = new IPC::Door::Server( $door, \&serv )
   || die "Cannot create $door: $!\n";
 
 while (1) {
     die "$door disappeared\n" unless $server->is_door;
 
-    sysopen(DOOR, $door, O_WRONLY) or die "Can't open $door: $!\n";
+    sysopen( DOOR, $door, O_WRONLY ) or die "Can't open $door: $!\n";
 
     close DOOR;
 

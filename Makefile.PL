@@ -1,5 +1,5 @@
 # Makefile.PL for IPC::Door
-# $Id: Makefile.PL,v 1.13 2004/05/01 07:59:50 asari Exp $
+# $Id: Makefile.PL,v 1.14 2004/05/06 03:05:57 asari Exp $
 use 5.006;
 use ExtUtils::MakeMaker;
 
@@ -55,7 +55,7 @@ WriteMakefile(
           )
         : ()
     ),
-    'LIBS'   => ['-lmalloc -ldoor -lthread'], # e.g., '-lm'
+    'LIBS'   => ['-ldoor -lthread'], # e.g., '-lm'
     'DEFINE' => '-D_REENTRANT',               # '-DDEBUGME' if debugging
     'INC'    => '-I.',                        # e.g., '-I. -I/usr/include/other'
          # Undo the shebang line edits for distribution

@@ -1,8 +1,39 @@
-# $Id: Door.pm,v 1.29 2004/05/01 07:59:50 asari Exp $
+# $Id: Door.pm,v 1.33 2004/05/06 03:08:45 asari Exp $
 
 =head1 NAME
 
 IPC::Door - Interface to Solaris (>= 2.6) Door library
+
+=head1 SYNOPSIS
+
+The server script:
+
+    use IPC::Door::Server;
+    use Fcntl;
+    my  $door = "/path/to/door";
+    my  $dserver = new IPC::Door::Server($door, &mysub);
+    while (1) {
+        die "$door disappeared: $!\n" unless IPC::Door::is_door($door);
+        sysopen( DOOR, $door, O_WRONLY ) || die "Can't write to $door: $!\n";
+        close DOOR;
+        select undef, undef, undef, 0.2;
+    }
+
+    sub mysub {
+        my $arg = shift;
+        # do something
+        my $ans;
+        return $ans;
+    }
+
+The client script:
+
+    use IPC::Door::Client;
+        use Fcntl;
+        my  $door = "/path/to/door";
+        my  $dclient = new IPC::Door::Client($door);
+        my  $data;
+        my  $answer = $client->call($data, O_RDWR);
 
 =cut
 
@@ -141,7 +172,7 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 require XSLoader;
 XSLoader::load('IPC::Door', $VERSION);
@@ -194,9 +225,9 @@ sub new {
 
 =head2 is_door
 
-C<$dserver-E<gt>is_door;>
+    $dserver-E<gt>is_door;
 
-C<IPC::Door::is_door('/path/to/door');>
+    IPC::Door::is_door('/path/to/door');
 
 Subroutine C<is_door> can be called either as an object method or
 as a subroutine.
@@ -211,6 +242,8 @@ door.
 # Note that is_door() is implemented in C.
 
 =head2 info
+
+    my ($target, $attr, $uniq) = IPC::Door::info($door);
 
 Subroutine C<info> takes the path to a door and return array C<(target, attributes, uniquifer)>.
 C<target> is the server process id that is listening through the door,
@@ -244,9 +277,7 @@ sub info ($) {
 sub DESTROY {
     my $self = shift;
 
-    unlink $self->{'path'};
-
-    return undef;
+    ;
 }
 
 1;    # end of IPC::Door
@@ -257,16 +288,21 @@ __END__
 
 =over 4
 
-=item 1.  Only strings can be passed through doors
+=item 1.  Restriction on passed data
 
-The doors created by C<IPC::Door::*> can only pass strings (i.e.,
-C<char*>).
-If it's a normal scalar in the Perl sense, Perl does the conversion.
-Otherwise, it won't work.
+The doors created by C<IPC::Door::*> can only pass strings.
+If it's a normal scalar in the Perl sense, Perl does the conversion when
+a number is expected.
 
-In theory, it is possible to get around this restriction via
-Perl-5.8.x-standard L<Storable> module.
-(I'm working on that part.)
+Note that passing references won't work.
+If you want to pass complex data structures, use the L<Storable> module,
+which is now standard with Perl 5.8.0.
+
+This also means that only C<IPC::Door::Server> servers can talk to
+non-C<IPC::Door::client> clients, and conversely.
+
+Furthermore, if you have too much data (8KB or so) through the door, the
+door server process dumps core with segmentation fault when DESTROY'd.
 
 =item 2.  Some C<door_*> routines not implemented
 
@@ -312,11 +348,10 @@ I'm still a beginner at XS (some may argue also at Perl), so the code,
 especially the XS portion, can be improved.
 Any suggestions are welcome.
 
-=item 6. Race condition in special variables
+=item 6.  Unicode compatibility
 
-As noted in L<IPC::Door::Server>, a race condition exists among special
-variables.
-(Well, in theory, anyway.  I really haven't verified this.)
+I have not tested this module with UTF-8-encoded strings.
+It may or may not work.
 
 =back
 
@@ -324,20 +359,21 @@ variables.
 
 L<IPC::Door::Client>, L<IPC::Door::Server>
 
-L<door_bind>(3DOOR),
-L<door_call>(3DOOR),
-L<door_create>(3DOOR),
-L<door_cred>(3DOOR),
-L<door_info>(3DOOR),
-L<door_return>(3DOOR),
-L<door_revoke>(3DOOR),
-L<door_server_create>(3DOOR),
-L<door_unbind>(3DOOR),
+door_bind(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3m?a=view>E<gt>,
+door_call(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3n?a=view>E<gt>,
+door_create(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3n?a=view>E<gt>,
+door_cred(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3p?a=view>E<gt>,
+door_info(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3q?a=view>E<gt>,
+door_return(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3r?a=view>E<gt>,
+door_revoke(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3s?a=view>E<gt>,
+door_server_create(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3t?a=view>E<gt>,
+door_unbind(3DOOR) E<lt>L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3u?a=view>E<gt>,
 
-L<UNIX Network Programming Volume 2: Interprocess
-Communications|"http://www.kohala.com/start/unpv22e/unpv22e.html">
+I<UNIX Network Programming Volume 2: Interprocess Communications>
+E<lt>L<"http://www.kohala.com/start/unpv22e/unpv22e.html">E<gt>
 
-L<Solaris Internals: Core Kernel Architecture|"http://www.solarisinternals.com">
+I<Solaris Internals: Core Kernel Architecture>
+E<lt>http://www.solarisinternals.com"E<gt>
 
 =head1 AUTHOR
 

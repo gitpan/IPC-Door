@@ -1,5 +1,5 @@
 #!PERL -w
-#$Id: benchmark.pl,v 1.10 2004/05/01 16:23:18 asari Exp $
+#$Id: benchmark.pl,v 1.12 2004/05/03 05:41:09 asari Exp $
 
 # A benchmark script to compare IPC through FIFO and doors.
 # Not exactly helpful for a couple of reasons.
@@ -18,7 +18,7 @@ use IPC::Door::Client;
 use Fcntl;
 use Errno qw( EAGAIN );
 
-my ($base, $path, $suffix) = fileparse($0, qr(\.[t|pl]));
+my ( $base, $path, $suffix ) = fileparse( $0, qr(\.[t|pl]) );
 my $pipe_server = $path . "bench-pipe-server.pl";
 my $pipe_server_pid;
 my $door_server = $path . "bench-door-server.pl";
@@ -34,15 +34,15 @@ my $iteration = shift || 200;
 my $read_pipe  = $path . "CLIENT_PIPE";
 my $write_pipe = $path . "SERVER_PIPE";
 
-my %errors = ('DOOR' => 0, 'PIPE' => 0);
-my %count  = ('DOOR' => 0, 'PIPE' => 0);
+my %errors = ( 'DOOR' => 0, 'PIPE' => 0 );
+my %count  = ( 'DOOR' => 0, 'PIPE' => 0 );
 
 # run benchmarks
 &spawn_pipe_server();
 &spawn_door_server();
 print "Ready for benchmarks? ";
 my $ans = <STDIN>;
-if ($ans =~ m/^[nN]/) {
+if ( $ans =~ m/^[nN]/ ) {
     &cleanup;
     die "Benchmarking aborted.\n";
 }
@@ -64,13 +64,13 @@ print "PIPE: executed $count{'PIPE'}; $errors{'PIPE'} errors\n";
 # Subroutines
 sub spawn_pipe_server () {
   FORK_PIPE_SERVER: {
-        if ($pipe_server_pid = fork) {
+        if ( $pipe_server_pid = fork ) {
             ;
         }
-        elsif (defined $pipe_server_pid) {
+        elsif ( defined $pipe_server_pid ) {
             exec $pipe_server;
         }
-        elsif ($! == EAGAIN) {
+        elsif ( $! == EAGAIN ) {
             sleep 5;
             redo FORK_PIPE_SERVER;
         }
@@ -83,13 +83,13 @@ sub spawn_pipe_server () {
 
 sub spawn_door_server () {
   FORK_DOOR_SERVER: {
-        if ($door_server_pid = fork) {
+        if ( $door_server_pid = fork ) {
             ;
         }
-        elsif (defined $door_server_pid) {
+        elsif ( defined $door_server_pid ) {
             exec $door_server;
         }
-        elsif ($! == EAGAIN) {
+        elsif ( $! == EAGAIN ) {
             sleep 5;
             redo FORK_DOOR_SERVER;
         }
@@ -104,15 +104,15 @@ sub call_door_server {
     my $num    = rand() * int_max;
     my $answer = $dclient->call($num);
 
-    if (abs($answer - $num**2) > precision) { $errors{'DOOR'}++ }
+    if ( abs( $answer - $num**2 ) > precision ) { $errors{'DOOR'}++ }
     $count{'DOOR'}++;
 }
 
 sub call_pipe_server {
     my $num = rand() * int_max;
-    sysopen(SERVER_PIPE, $write_pipe, O_WRONLY)
+    sysopen( SERVER_PIPE, $write_pipe, O_WRONLY )
       or die "Can't write to $write_pipe: $!";
-    sysopen(CLIENT_PIPE, $read_pipe, O_RDONLY)
+    sysopen( CLIENT_PIPE, $read_pipe, O_RDONLY )
       or die "Can't read to $read_pipe: $!";
 
     print SERVER_PIPE $num;
@@ -121,7 +121,7 @@ sub call_pipe_server {
     my $answer = <CLIENT_PIPE>;
     close CLIENT_PIPE;
 
-    if (abs($answer - $num**2) > precision) { $errors{'PIPE'}++ }
+    if ( abs( $answer - $num**2 ) > precision ) { $errors{'PIPE'}++ }
     $count{'PIPE'}++;
 
     #	print "PIPE: Sent $num, got $answer\n";

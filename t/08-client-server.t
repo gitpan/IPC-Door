@@ -1,6 +1,6 @@
 #########################
 # Test script for IPC::Door
-# $Id: 08-client-server.t,v 1.4 2004/05/01 07:59:59 asari Exp $
+# $Id: 08-client-server.t,v 1.6 2004/05/06 03:02:13 asari Exp $
 
 use Test::More tests => 1;
 use strict;
@@ -9,14 +9,14 @@ use Fcntl;
 #BEGIN { use_ok ('IPC::Door::Client') }
 #BEGIN { use_ok ('IPC::Door::Server') }
 use IPC::Door::Client;
-use IPC::Door::Server;
+#use IPC::Door::Server;
 
 use File::Basename;
 use Devel::Peek;
 use Fcntl;
 use Errno qw( EAGAIN );
 
-my ($base, $path, $suffix) = fileparse($0, qr(\.[t|pl]));
+my ($base, $path, $suffix) = fileparse($0, qr(\.[t|pl]$));
 my $dserver_pid;
 my $dserver_script = $path . "door-server.pl";
 my $door           = $path . 'DOOR';
@@ -49,7 +49,7 @@ select undef, undef, undef, 2;
 my $num = rand() * (2**16 - 1);
 my $ans;
 if ($dclient->is_door) {
-    print "Sending $num: \n";
+#    print "Sending $num: \n";
     $ans = $dclient->call($num, O_RDWR);
 }
 else {

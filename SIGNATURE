@@ -14,16 +14,16 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 e5f141605860f84465b2e1356f89ad9e87d3e8db Changes
-SHA1 786ccf031bc3021bfb3101137c25a0381983e9d1 Door.pm
-SHA1 acac79de42b3fb478f1057d587ce075b727b4c45 Door.xs
-SHA1 6c08f0a30916827c1d6bcd101909ae5739fe8328 Door/Client.pm
-SHA1 dfff2b2eb813c7faf8206cfdbeb5fa2e9d1ac21e Door/Server.pm
+SHA1 0f068eb6b8e5fc6e45300930af7ba16a59443f50 Changes
+SHA1 d2747b67a179f02c9f1e955505a47bc33fb6f6f7 Door.pm
+SHA1 104a6a28398f437429831a142ad0e152c6058aec Door.xs
+SHA1 ec02152650389830657775ac65675bf499abf4ac Door/Client.pm
+SHA1 7b6f76a5988c62e147408912c35c7938163a9f0e Door/Server.pm
 SHA1 60e48680c673a22fd004bea780e7b9b9754114e4 MANIFEST
-SHA1 a6979a3decf74568d1a1b3f57b307014fd154628 META.yml
-SHA1 beed38f0923fc6659258f6618c30ed30c1036ac2 Makefile.PL
-SHA1 95398d9583ccee3050bf6f86069f21462264a0d0 README
-SHA1 86eeecd13b2a84b265ab741251ba7d4dcad51b2d const-c.inc
+SHA1 595452687b52bac6aaf18292dd16ba51ddbde02e META.yml
+SHA1 2e4ce61eba16348b3ee537054b3fdb6051e5e6d1 Makefile.PL
+SHA1 aa3cc7e2189b3b61da7be7beaef6725b74ddf46e README
+SHA1 9a6e6422c7c59deb94f1b8d4c2f6b1b5ae792b6d const-c.inc
 SHA1 dffa9821b49d21ec4d07e9314de27092bb810fb4 const-xs.inc
 SHA1 86eeecd13b2a84b265ab741251ba7d4dcad51b2d fallback/const-c.inc
 SHA1 dffa9821b49d21ec4d07e9314de27092bb810fb4 fallback/const-xs.inc
@@ -35,19 +35,19 @@ SHA1 9a7c32fec6b04dc7342f39ffce69f24503ed9297 t/04-tags-errors.t
 SHA1 e763d9db8ba48228b8b78dd5df00d178ee3fa482 t/05-tags-subcodes.t
 SHA1 6b93d44e8a0482527a150ac530347d523e0efef2 t/06-tags-all.t
 SHA1 9586fff2817c1d59af6866472141294dd03c5d48 t/07-main.t
-SHA1 c1e81a2d67f5c9e96248bc47a6caf8904d1f923c t/08-client-server.t
-SHA1 cda2e836d0c4b9abfe8e4726116a52c889ba69f7 t/09-client-server2.t
-SHA1 18bead10c2024fe3fe05c8318a9e0298e4c1df59 t/10-client-server3.t
-SHA1 3d2b8d6dd0a797f0fa8bbc9d8be29f658ca2c085 t/bench-door-server.pl
-SHA1 bfb34f13458ecf9edda8cd27162d3bf682a909f1 t/bench-pipe-server.pl
-SHA1 060efc75edc5cd84c3d80d98b8687ac91a41307e t/benchmark.pl
-SHA1 3079c374b0c0c4a6602ed3ca86f79363c6dce4e6 t/door-server.pl
-SHA1 8bdf030b855a41f522d80e96a34a1e30410c15b7 t/door-server2.pl
-SHA1 935729737922e1682f545e1ae12af8a571f65e54 t/door-server3.pl
+SHA1 8840a05f2d57cf9be01cff4c483e95c89d913164 t/08-client-server.t
+SHA1 fd5bda5f68be4d72f4fc3e0e25ab581b79bd4970 t/09-client-server2.t
+SHA1 e904a298ce48278f2fc45a71f4d965e76f74feed t/10-client-server3.t
+SHA1 73a4c256ce5a09587cca57418d528900d6582887 t/bench-door-server.pl
+SHA1 f4608070887a8642b1456d076680bca476f4340c t/bench-pipe-server.pl
+SHA1 94a83b920582f463ddbd1eb52b422111500f538a t/benchmark.pl
+SHA1 8bdaf3bd354fa075c6a997073b47ebbc372876f9 t/door-server.pl
+SHA1 d1059db3f37f2e6f8fa59057b00710f7901b0afb t/door-server2.pl
+SHA1 d1d89a1485cb3a8022c2689291c09e3fadbd9edb t/door-server3.pl
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (SunOS)
 
-iD8DBQFAlLUooXhPvmJPsrERAu4hAJ9GsXEzSfSahN+kTPNcms45tPTROQCcDlgO
-eJLDgjLLGJNDdk+RNLU3O10=
-=0kGQ
+iD8DBQFAmaz/oXhPvmJPsrERAntDAKDxQkZryQeQ2CSKcz1eqU5c8FZQ3wCgmR6Y
+HmSiu+i4evuwuBEHawq5dAc=
+=To16
 -----END PGP SIGNATURE-----

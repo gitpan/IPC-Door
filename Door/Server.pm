@@ -1,5 +1,5 @@
 package IPC::Door::Server;
-#$Id: Server.pm,v 1.9 2004/05/01 08:01:20 asari Exp $
+#$Id: Server.pm,v 1.11 2004/05/06 03:09:48 asari Exp $
 
 use 5.006;
 use strict;
@@ -9,6 +9,13 @@ use POSIX qw[ :fcntl_h ];
 use IPC::Door;
 
 our @ISA = qw[ IPC::Door ];
+
+sub DESTROY {
+    my $self = shift;
+
+    $self->SUPER::DESTROY;
+    unlink $self->{'path'} if (-e $self->{'path'});
+}
 
 1;    # end of IPC::Door::Server
 
@@ -20,11 +27,11 @@ IPC::Door::Server - door server object for Solaris (>= 2.6)
 
 =head2 SYNOPSIS
 
-C<use IPC::Door::Server;>
+    use IPC::Door::Server;
 
-C<$door = '/path/to/door';>
+    $door = '/path/to/door';
 
-C<$dserver = new IPC::Door::Server($door, \&mysub);>
+    $dserver = new IPC::Door::Server($door, \&mysub);
 
 =head1 DESCRIPTION
 
@@ -61,10 +68,6 @@ If it makes sense, you can discriminate against client processes
 inside C<&mysub>.
 (It doesn't make much sense to do anything with these variables outside
 &mysub, anyway.)
-
-Note that if there are more than one door clients are connected
-to a single C<IPC::Door::Server> process, the race condition exists
-and these variables may hold incorrect values.
 
 =head1 SEE ALSO
 
