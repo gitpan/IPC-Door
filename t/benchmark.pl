@@ -1,41 +1,92 @@
-#!/usr/bin/perl -w
-#$Date: 2003/08/29 04:39:00 $
-#$Id: benchmark.pl,v 1.4 2003/08/29 04:39:00 asari Exp $
+#!/usr/local/bin/perl
+#$Date: 2003/09/02 13:21:38 $
+#$Id: benchmark.pl,v 1.5 2003/09/02 13:21:38 asari Exp $
 
+use warnings;
 use strict;
-use IPC::Door;
+use IPC::Door::Client;
 use Fcntl;
 use Benchmark;
+use Errno qw[ EAGAIN ];
 
 use constant int_max => 2**16-1;
 use constant precision => 0.005;
 
 my $iteration = shift || 1500;
 
-my $prefix=$0;
-$prefix =~ s{[^/]*$}{};	# delete the file name from $0
-my $door = $prefix . '/DOOR';
-my $read_pipe = $prefix .'/CLIENT_PIPE';
-my $write_pipe = $prefix .'/SERVER_PIPE';
+my $door = "DOOR";
+my $read_pipe = "CLIENT_PIPE";
+my $write_pipe = "SERVER_PIPE";
 
-my $dserver_script = $prefix . 'benchmark-server-door.pl';
-my $pserver_script = $prefix . 'benchmark-pipe-door.pl';
+my $dserver_script = "benchmark-server-door.pl";
+my $pserver_script = "benchmark-server-pipe.pl";
+my $dclient = new IPC::Door::Client ($door);
 
 my %errors = ( 'DOOR'=>0, 'PIPE'=>0 );
-my %count;
+my %count  = ( 'DOOR'=>0, 'PIPE'=>0 );
 
+my ($dserver_pid, $pserver_pid);
 
+########################################
+# start server processes
+########################################
+FORK_DOOR_SERVER: {
+	if ($dserver_pid = fork) {
+		# fall through
+		;
+	} elsif (defined $dserver_pid) {
+		 exec $dserver_script;
+	} elsif ($! == EAGAIN) {
+		 sleep 5;
+		 redo FORK_DOOR_SERVER;
+	} else {
+		 die "Cannot fork the door server: $!\n";
+	}
+}
 
-# start a server through a pipe
+FORK_PIPE_SERVER: {
+	if ($pserver_pid = fork) {
+		# fall through
+		;
+	} elsif (defined $pserver_pid) {
+		 exec $pserver_script;
+	} elsif ($! == EAGAIN) {
+		 sleep 5;
+		 redo FORK_PIPE_SERVER;
+	} else {
+		 die "Cannot fork the pipe server: $!\n";
+	}
+}
 
 
 # run benchmarks
+print "Ready for benchmarks?";
+my $ans = <STDIN>;
+if ($ans =~ m/^[nN]/) {
+	&cleanup;
+	die "Benchmarking aborted.\n";
+};
+
+#timethis( $iteration, \&call_pipe_server, 'DOOR');
+timethese( $iteration, {
+			'DOOR' => \&call_door_server,
+			'PIPE' => \&call_pipe_server
+	 } );
+
+
+print "DOOR: executed $count{'DOOR'}; errors $errors{'DOOR'}\n";
+print "PIPE: executed $count{'PIPE'}; errors $errors{'PIPE'}\n";
+
+&cleanup;
+
+#
+# subroutines
+#
 
 ##################################################
 # Door client
 ##################################################
 
-my $dclient = new IPC::Door::Client ($door);
 
 sub call_door_server {
 	my $num = rand()*int_max;
@@ -44,7 +95,6 @@ sub call_door_server {
 	if (abs($answer - $num**2) > precision) { $errors{'DOOR'}++ };
 	$count{'DOOR'}++;
 
-#	print "DOOR: Sent $num, got $answer\n";
 
 }
 
@@ -70,20 +120,12 @@ sub call_pipe_server {
 
 }
 
-#timethis( $iteration, \&call_pipe_server, 'DOOR');
-timethese( $iteration, {
-			'DOOR' => \&call_door_server,
-			'PIPE' => \&call_pipe_server
-	 } );
+sub cleanup {
+	# terminate server processes
+	kill 'INT', $dserver_pid;
+	kill 'INT', $pserver_pid;
 
-
-# kill the servers
-
-# remove the pipes and the door
-
-print "DOOR: executed $count{'DOOR'}; errors $errors{'DOOR'}\n";
-print "PIPE: executed $count{'PIPE'}; errors $errors{'PIPE'}\n";
-
-unlink $door || warn "Can't remove $door: $!\n";
-unlink $read_pipe || warn "Can't remove $read_pipe: $!\n";
-unlink $write_pipe || warn "Can't remove $read_pipe: $!\n";
+	unlink $door       || warn "Can't remove $door: $!\n";
+	unlink $read_pipe  || warn "Can't remove $read_pipe: $!\n";
+	unlink $write_pipe || warn "Can't remove $read_pipe: $!\n";
+}

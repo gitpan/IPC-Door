@@ -1,4 +1,4 @@
-IPC/Door version 0.02
+IPC/Door version 0.03
 =============================
 
 INTRODUCTION
@@ -54,5 +54,5 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
 
 -- 
-$Date: 2003/08/29 04:38:57 $
-$Id: README,v 1.5 2003/08/29 04:38:57 asari Exp $
+$Date: 2003/09/03 12:21:45 $
+$Id: README,v 1.6 2003/09/03 12:21:45 asari Exp $

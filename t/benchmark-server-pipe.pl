@@ -1,33 +1,32 @@
 #!/usr/local/bin/perl -w
-#$Date: 2003/08/29 04:39:00 $
-#$Id: benchmark-server-pipe.pl,v 1.3 2003/08/29 04:39:00 asari Exp $
+#$Date: 2003/09/02 13:21:38 $
+#$Id: benchmark-server-pipe.pl,v 1.4 2003/09/02 13:21:38 asari Exp $
 use strict;
 use Fcntl;
 
-# read STDIN and write its square to STDOUT
+$SIG{INT}  = \&term;
+$SIG{TERM} = \&term;
 
 
-my $read_pipe = shift;
-my $write_pipe = $read_pipe;
-$read_pipe .= '/SERVER_PIPE' if (defined($read_pipe) && -d $read_pipe);
-$write_pipe .= '/CLIENT_PIPE' if (defined($write_pipe) && -d $write_pipe);
+my $read_pipe  = 'SERVER_PIPE';
+my $write_pipe = 'CLIENT_PIPE';
 
 unless (-p $write_pipe) {
-	 if (-e _) {
+	if (-e _) {
 			die "$0: Won't overwrite $write_pipe\n";
-	 } else {
+	} else {
 			require POSIX;
 			POSIX::mkfifo( $write_pipe, 0666 ) or die "Can't create $write_pipe: $!\n";
-	 }
+	}
 }
 
 unless (-p $read_pipe) {
-	 if (-e _) {
+	if (-e _) {
 			die "$0: Won't overwrite $read_pipe\n";
-	 } else {
+	} else {
 			require POSIX;
 			POSIX::mkfifo( $read_pipe, 0666 ) or die "Can't create $read_pipe: $!\n";
-	 }
+	}
 }
 
 while (1) {
@@ -44,4 +43,9 @@ while (1) {
 	close SERVER_PIPE;
 	close CLIENT_PIPE;
 
+}
+
+sub term {
+	my $sig = shift;
+	die "$0: Caught signal $sig.\n";
 }

@@ -1,5 +1,13 @@
 Revision history for Perl extension IPC::Door.
 
+0.03
+	- Implemented door_cred(), door_info() (with some limitations)
+	- Split Door.pm into three files: Door.pm, Door/Client.pm,
+Door/Server.pm
+	- Added AutoLoader support (basically redid h2xs without '-A')
+	- More robust test scripts
+	- No longer tied to &main::serv.
+
 0.02  Thu Aug 28 23:07:59 CDT 2003
 	- First public release
 
