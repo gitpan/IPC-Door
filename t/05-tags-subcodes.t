@@ -1,6 +1,6 @@
 #########################
 # Test script for IPC::Door
-# $Id: 05-tags-subcodes.t,v 1.6 2004/05/22 22:32:21 asari Exp $
+# $Id: 05-tags-subcodes.t 15 2005-05-27 04:20:14Z asari $
 
 # make sure the tags work
 

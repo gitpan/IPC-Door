@@ -1,5 +1,5 @@
 /*
-$Id: Door.xs,v 1.46 2004/05/22 22:21:29 asari Exp $
+$Id: Door.xs 37 2005-06-07 05:50:05Z asari $
 */
 #include "EXTERN.h"
 #include "perl.h"
@@ -15,15 +15,24 @@ $Id: Door.xs,v 1.46 2004/05/22 22:21:29 asari Exp $
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <door.h>
-#ifdef HAS_UCRED_H
-#include <ucred.h>
-#endif
 #include <sys/ddi.h>
+#include <sched.h>
+#include <thread.h>
+#include <limits.h>
 
 #include "const-c.inc"
 
 #define FILE_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
-#define MAX_STRING 16300
+#define MAX_STRING 12000
+
+#ifdef DEBUGGING
+#define WARN(x) do {                                     \
+        if ( (getenv("TEST_VERBOSE") != NULL) && (atoi(getenv("TEST_VERBOSE"))) ) \
+            { PerlIO_stdoutf x; PerlIO_stdoutf ("\n"); } \
+} while (0)
+#else
+#define WARN(x)
+#endif
 
 /* typedefs */
 typedef struct {
@@ -33,7 +42,7 @@ typedef struct {
 } ipc_door_data_t;
 
 /* The server process */
-void servproc(void *cookie, char *dataptr, size_t datasize,
+static void servproc(void *cookie, char *dataptr, size_t datasize,
     door_desc_t *descptr, size_t ndesc)
 {
     dSP;
@@ -41,11 +50,11 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
     ipc_door_data_t arg, retval;
     SV          *result;
 #ifdef _UCRED_H_
-    ucred_t     *info;
+    ucred_t     **info;
 #else
     door_cred_t info;
 #endif
-    SV          *sv_callback; /* code reference */
+    SV          *sv_callback; /* serverprocess code reference */
     register SV *sv;          /* convenience variable */
     void        *tmp;
     char        *str;
@@ -57,11 +66,12 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
 
     PUSHMARK(SP);
 
-/*    printf("datasize: %d, sizeof(arg): %d\n", datasize, sizeof(arg));
-*/
     memmove(&arg, dataptr, min(datasize,sizeof(arg)));
-    if ((str = calloc(MAX_STRING, 1)) == NULL)
+    if ((str = calloc(1, MAX_STRING)) == NULL)
+    {
+        WARN(("memory allocation error: %s", strerror(errno)));
         return;
+    }
     arg.ipc_door_data_pv[MAX_STRING-1]='\0';
     memmove((void*)str, arg.ipc_door_data_pv, MAX_STRING);
 
@@ -76,12 +86,11 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
 
     free(str);
 
-
     if (SvOK(sv))
         XPUSHs(sv);
     else {
         /* fall through; we shouldn't be here, but you never know. */
-        croak("Something went horribly wrong in servproc");
+        WARN(("Something went horribly wrong in servproc"));
         return;
     }
 
@@ -90,36 +99,31 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
     /* grab the client's credentials before calling &main::serv */
 #ifdef _UCRED_H_
 /* the new way to get the client process credentials */
-    if (door_ucred(&info) < 0)
-        warn("door_ucred() failed");
+    if ( (*info = calloc(1, ucred_size())) == NULL )
+    {
+        WARN(("memory allocation error: %s\n", strerror(errno)));
+        return;
+    }
+    if (door_ucred(info) < 0)
+        WARN(("door_ucred() failed: %s\n", strerror(errno)));
 
-    /* make client's credentials available inside perl */
-    sv = get_sv("main::DOOR_CLIENT_EUID", TRUE);
-    sv_setiv(sv, ucred_geteuid(info));
-    sv = get_sv("main::DOOR_CLIENT_EGID", TRUE);
-    sv_setiv(sv, ucred_getruid(info));
-    sv = get_sv("main::DOOR_CLIENT_RUID", TRUE);
-    sv_setiv(sv, ucred_getegid(info));
-    sv = get_sv("main::DOOR_CLIENT_RGID", TRUE);
-    sv_setiv(sv, ucred_getrgid(info));
-    sv = get_sv("main::DOOR_CLIENT_PID", TRUE);
-    sv_setiv(sv, ucred_getpid(info));
+    sv_setiv( get_sv("IPC::Door::CLIENT_EUID",TRUE), ucred_geteuid( *info));
+    sv_setiv( get_sv("IPC::Door::CLIENT_EGID",TRUE), ucred_getegid( *info));
+    sv_setiv( get_sv("IPC::Door::CLIENT_RUID",TRUE), ucred_getruid( *info));
+    sv_setiv( get_sv("IPC::Door::CLIENT_RGID",TRUE), ucred_getrgid( *info));
+    sv_setiv( get_sv("IPC::Door::CLIENT_PID", TRUE), ucred_getpid(  *info));
+
+    ucred_free( *info );
 
 #else
     if (door_cred(&info) < 0)
-        warn("door_cred() failed");
+        WARN(("door_cred() failed: %s\n", strerror(errno)));
 
-    /* make client's credentials available inside perl */
-    sv = get_sv("main::DOOR_CLIENT_EUID", TRUE);
-    sv_setiv(sv, info.dc_euid);
-    sv = get_sv("main::DOOR_CLIENT_EGID", TRUE);
-    sv_setiv(sv, info.dc_egid);
-    sv = get_sv("main::DOOR_CLIENT_RUID", TRUE);
-    sv_setiv(sv, info.dc_ruid);
-    sv = get_sv("main::DOOR_CLIENT_RGID", TRUE);
-    sv_setiv(sv, info.dc_rgid);
-    sv = get_sv("main::DOOR_CLIENT_PID", TRUE);
-    sv_setiv(sv, info.dc_pid);
+    sv_setiv( get_sv("IPC::Door::CLIENT_EUID",TRUE), info.dc_euid );
+    sv_setiv( get_sv("IPC::Door::CLIENT_EGID",TRUE), info.dc_egid );
+    sv_setiv( get_sv("IPC::Door::CLIENT_RUID",TRUE), info.dc_ruid );
+    sv_setiv( get_sv("IPC::Door::CLIENT_RGID",TRUE), info.dc_rgid );
+    sv_setiv( get_sv("IPC::Door::CLIENT_PID", TRUE), info.dc_pid  );
 
 #endif
 
@@ -128,7 +132,7 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
     SPAGAIN;
 
     if (count != 1)
-        croak("servproc: Expected 1 value from server process; got %d values instead.\n", count);
+        WARN(("servproc: Expected 1 value from server process, but got %d values", count));
     result = POPs;
 
     str = SvPV( result, PL_na );
@@ -137,7 +141,7 @@ void servproc(void *cookie, char *dataptr, size_t datasize,
     retval.len=SvLEN(result);
 
     if (door_return((char *) &retval, sizeof(retval),NULL,0) < 0)
-        croak("door_return() failed in servproc");
+        WARN(("door_return() failed in servproc: %s\n", strerror(errno)));
 
     PUTBACK;
 
@@ -177,46 +181,57 @@ OUTPUT:
     RETVAL
 
 void
-__info(sv_path)
+__info(sv_path, sv_class)
     SV * sv_path
+    SV * sv_class
 PREINIT:
     char * path = SvPV(sv_path, PL_na);
+    char * class = SvPV(sv_class, PL_na);
     int fd;
     struct stat stat;
     door_info_t info;
     SV * sv;
 PPCODE:
     if ((fd = open(path, O_RDONLY)) < 0) {
-        croak ("open() failed\n");
+        WARN(("open() failed: %s\n", strerror(errno)));
         XSRETURN_UNDEF;
     }
     if (fstat(fd, &stat) < 0) {
-        croak ("fstat() failed\n");
+        WARN(("fstat() failed:%s \n", strerror(errno)));
         XSRETURN_UNDEF;
     }
     if (S_ISDOOR(stat.st_mode) == 0) {
-        warn("%s is not a door\n", path);
+        WARN(("%s is not a door\n", path));
         XSRETURN_UNDEF;
     }
+    if ( !strcmp( class, "IPC::Door::Server" ) )
+        fd = DOOR_QUERY;
+
     /* path is a door, so gather info */
-    if (door_info(fd, &info) < 0) {
-        warn("door_info() failed");
+    if (door_info( fd, &info) < 0) {
+        WARN(("door_info() failed: %s", strerror(errno)));
+        XSRETURN_UNDEF;
     } else {
         XPUSHs(sv_2mortal(newSViv((long) info.di_target)));
+/* I don't know how useful these data will be in Perl.
+        XPUSHs(sv_2mortal(newSViv((long) info.di_proc)));
+        XPUSHs(sv_2mortal(newSViv((long) info.di_data)));
+*/
         XPUSHs(sv_2mortal(newSViv((long) info.di_attributes)));
         XPUSHs(sv_2mortal(newSViv((long) info.di_uniquifier)));
     }
 
-    if (close(fd) < 0) croak("close() failed\n");
+    if (close(fd) < 0) WARN(("close() failed\n"));
 
 
 
 MODULE=IPC::Door    PACKAGE=IPC::Door::Server
 int
-__create(sv_class, sv_path, sv_callback)
+__create(sv_class, sv_path, sv_callback, sv_attr)
     SV *sv_class
     SV *sv_path
     SV *sv_callback
+    SV *sv_attr
 PROTOTYPE: $$$
 CODE:
     SV   *sv_server = SvRV(sv_class); /* IPC::Door::Server object */
@@ -226,33 +241,46 @@ CODE:
 
     /* Make sure sv_server is sane */
     if (!sv_isobject(sv_class)) {
-        warn("Non-object passed in __create()");
+        WARN(("Non-object passed in __create()"));
         XSRETURN_UNDEF;
     }
 
     /* Make sure that sv_callback is sane */
     if (!SvROK(sv_callback) || (SvTYPE(SvRV(sv_callback)) != SVt_PVCV)) {
-        warn("%s is not a code reference.", callback);
+        WARN(("%s is not a code reference\n", callback));
         XSRETURN_UNDEF;
     }
 
     /* set sv_callback */
     sv_callback = *(hv_fetch((HV *)sv_server, "callback", 8, FALSE));
 
-    if ((fd = door_create(servproc, sv_callback, 0)) < 0) {
+    if ((fd = door_create(servproc, sv_callback, SvIV(sv_attr))) < 0) {
         /* Why did it fail? */
-        warn("door_create() failed");
-        if (close(fd) < 0) warn("close() failed\n");
+        WARN(("door_create() failed: %s\n", strerror(errno)));
+        if (close(fd) < 0) WARN(("close() on %s failed: %s\n", path, strerror(errno)));
         XSRETURN_UNDEF;
     } else {
         /* need to trap potential errors here */
         close(open(path, O_CREAT | O_RDWR, FILE_MODE));
         if ( (RETVAL=fattach(fd, path)) < 0) {
-            warn("fattach() failed");
+            WARN(("fattach() on %s failed: %s\n", path, strerror(errno)));
             XSRETURN_UNDEF;
         }
     }
 
+void
+__revoke(sv_class, sv_path)
+    SV * sv_class
+    SV * sv_path
+CODE:
+    char *class = SvPV(sv_class, PL_na);
+    char *path  = SvPV(sv_path,  PL_na);
+    int fd; // file descriptor for the door
+
+    if ( fd = open(path, O_RDWR) < 0 )
+        WARN(("open on %s failed during revoke(): %s\n", path, strerror(errno)));
+    if ( door_revoke(fd) < 0 ) 
+        WARN(("door_revoke() on %s failed: %s\n", path, strerror(errno)));
 
 MODULE=IPC::Door    PACKAGE=IPC::Door::Client
 SV *
@@ -275,7 +303,7 @@ CODE:
     SAVETMPS;
 
     if ((fd = open(path, attr)) < 0) {
-        warn("Failed to open %s",path);
+        WARN(("Failed to open %s: %s",path, strerror(errno)));
         XSRETURN_UNDEF;
     };
 
@@ -294,15 +322,15 @@ CODE:
     arg.rsize     = sizeof(servproc_out);
 
     if (door_call(fd, &arg) < 0) {
-        warn("door_call() failed");
-        if (close(fd) < 0) croak ("close() failed\n");
+        WARN(("door_call() failed: %s\n", strerror(errno)));
+        if (close(fd) < 0) WARN(("close() failed: %s\n", strerror(errno)));
         XSRETURN_UNDEF;
     } else {
-        if (close(fd) < 0) croak ("close() failed\n");
+        if (close(fd) < 0) WARN(("close() failed: %s\n", strerror(errno)));
 
         /* Coerce output into something we can return to perl */
         /* Newz(0, (void*)s, 1, typeof(servproc_in.ipc_door_data_pv)); */
-        if (((char*)s=calloc(MAX_STRING,sizeof(char))) == NULL)
+        if ((s=calloc(MAX_STRING,sizeof(char))) == NULL)
             XSRETURN_UNDEF;
         output = sv_newmortal();
         servproc_out.ipc_door_data_pv[MAX_STRING-1]='\0';

@@ -1,5 +1,6 @@
 package IPC::Door::Client;
-#$Id: Client.pm,v 1.11 2004/05/09 16:39:04 asari Exp $
+
+#$Id: Client.pm 31 2005-06-04 22:33:42Z asari $
 
 use 5.006;
 use strict;
@@ -19,8 +20,14 @@ sub call {
     my $arg  = shift;
     my $attr = shift || O_RDWR;
 
-    eval { $ans = $self->__call($path, $arg, $attr) };
-    croak $@ if $@;
+    if ( ( $self->info() )[0] > 0 ) {
+        eval { $ans = $self->__call( $path, scalar( $arg ), $attr ) };
+    }
+
+    if ($@) {
+       warn "$self->call() failed: $@\n";
+       $ans = undef;
+    }
     return $ans;
 
 }
@@ -57,6 +64,8 @@ and you can optionally pass flags for that call.
 Note that the standard module L<Fcntl> exports useful ones.
 The default is C<O_RDWR>.
 
+The argument will be evaluated in the scalar context.
+
 =head1 SEE ALSO
 
 L<IPC::Door>
@@ -69,7 +78,7 @@ L<http://www.asari.net/perl>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003, 2004 by ASARI Hirotsugu
+Copyright 2003-2005 by ASARI Hirotsugu
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

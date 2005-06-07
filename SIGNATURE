@@ -1,12 +1,12 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.38.
+signed via the Module::Signature module, version 0.44.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
 
     % cpansign -v
 
-It would check each file's integrity, as well as the signature's
+It will check each file's integrity, as well as the signature's
 validity.  If "==> Signature verified OK! <==" is not displayed,
 the distribution may already have been compromised, and you should
 not run its Makefile.PL or Build.PL.
@@ -14,40 +14,40 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 91648b3bb4b493da7dfe63f4cff6c62398b14e3a Changes
-SHA1 98032f870f949fa2da0ac3edec8e24638f8315bc Door.pm
-SHA1 a250770c2a35f9f06b6b8d2d2278949a91c3ab9f Door.xs
-SHA1 4fdf0d17a18cf374b5713ce184cf53ddcb8858ff Door/Client.pm
-SHA1 12d9dc538f3466efe9d9a4313ea433eaf703880b Door/Server.pm
-SHA1 e39553f49a68e889edaaaba296776df6a14afa5f MANIFEST
-SHA1 bfbf34fc399415127b37fb89f52ae93a9cad603a META.yml
-SHA1 1ec4da21c15f776935c983b58b2b060d89623030 Makefile.PL
-SHA1 3a4b9743bb74fa673429cf94244f46317803e045 README
+SHA1 7852d28c0d59823679b4047d61d6885afbe89b88 Changes
+SHA1 fe4c085e6bc71b95a19170a0aed5d84606880e3f Door.pm
+SHA1 74a463fe5dabb105ca73d493a946c2bb82a5390b Door.xs
+SHA1 12ce1d412c21017205bb9dd289348048b4225a9f Door/Client.pm
+SHA1 0058868dc3871047ab38e8d44d9518c15df8967d Door/Server.pm
+SHA1 158ea52ab7aa1a861a8b0d6f7e345b17da05022f MANIFEST
+SHA1 eb2a541e530b5fcd52ebdd6f8da95f89ecc38114 META.yml
+SHA1 b8bdd26378811d0a9ea2f32c28036d6c77bd1d02 Makefile.PL
+SHA1 fd8cd3f720ffa2049dd51ee141e67f23666481d2 README
+SHA1 e01b1643718d2e512862931d9a0e9c120e7cf1b5 benchmark/bench-door-server.pl
+SHA1 6a37c8b1fb5920c7433e860bb4ba3fe53c29cc98 benchmark/bench-pipe-server.pl
+SHA1 eb085bcba5321ef2bb0a58307c3ff6a492047c87 benchmark/benchmark.pl
 SHA1 86eeecd13b2a84b265ab741251ba7d4dcad51b2d fallback/const-c.inc
-SHA1 64d27a4f91b7c705aec77d1bcaa683f346bb9fd6 fallback/const-c.inc_10
+SHA1 040e6da58931556b68870289eee834dc96f44eb0 fallback/const-c.inc_10
 SHA1 dffa9821b49d21ec4d07e9314de27092bb810fb4 fallback/const-xs.inc
-SHA1 36b84e70a474c07534488967fb2e4de7a0c2757c fallback/const-xs.inc_10
+SHA1 dffa9821b49d21ec4d07e9314de27092bb810fb4 fallback/const-xs.inc_10
 SHA1 115da7144f264305baa5ac074fc5b8cd64aa734b ppport.h
-SHA1 7e33f4f0742e4974c17dc59e630a121d1c280fd9 t/01-tags-attr.t
-SHA1 591f8832bf3840dfa8489f1c4dcfdf3ecc1d02b5 t/02-tags-attr_desc.t
-SHA1 5b2c77a01b2855985b863ac52a400716021d9997 t/03-tags-desc.t
-SHA1 9a7c32fec6b04dc7342f39ffce69f24503ed9297 t/04-tags-errors.t
-SHA1 b588bdb168f1f6394abb2be4664b5214886a6beb t/05-tags-subcodes.t
-SHA1 a062ea2d6a5f7a707cdf2f4f41fdc0233de0df29 t/06-tags-all.t
-SHA1 043871497301f5effd38ec5bf6d16a81ce0477ef t/07-main.t
-SHA1 8840a05f2d57cf9be01cff4c483e95c89d913164 t/08-client-server.t
-SHA1 fd5bda5f68be4d72f4fc3e0e25ab581b79bd4970 t/09-client-server2.t
-SHA1 e904a298ce48278f2fc45a71f4d965e76f74feed t/10-client-server3.t
-SHA1 d4d370a42c5ad5e37c71edab908635bdfb43609d t/bench-door-server.pl
-SHA1 67f03876b0e8d35c440e47b342f264f1d06440ad t/bench-pipe-server.pl
-SHA1 537113283bb66391125b20320d56e238052f4574 t/benchmark.pl
-SHA1 dc2f1ebba3f36c58cbecdab244f4fec4f8b2a5d5 t/door-server.pl
-SHA1 3e9cb014af983110e70d94eb5890e62a0b1b7eb0 t/door-server2.pl
-SHA1 141a0032944ef7696fb34f5faea9eac3bd11a77f t/door-server3.pl
+SHA1 d1c00a446d6ef9549da98f4f6d46e675ac60bfe6 t/01-tags-attr.t
+SHA1 3074cb926cce47343edf491c662cef98d2898c35 t/02-tags-attr_desc.t
+SHA1 bad12be2f647897df23ff22987a967039eed6592 t/03-tags-desc.t
+SHA1 9ce478acb3f4bb1b6eb5f89baf2be25e4120f491 t/04-tags-errors.t
+SHA1 6c6c73204bb87467580ea9df0ae09ce1ae3b4928 t/05-tags-subcodes.t
+SHA1 291aaad2e0b23e3c747a9d79c40d312ce6836d51 t/06-tags-all.t
+SHA1 5ee876e6e6f1d98558e7a0d80c9eef72b6272826 t/07-main.t
+SHA1 a3ee1870ddff17281b618b133ea0700c5012851a t/08-client.t
+SHA1 269b949e959e0e72f0527befa33ae5d8bb9930f3 t/09-server.t
+SHA1 f68ff9fe379ff78a62361cd50d12b55a57fbc9a0 t/door-client.pl
+SHA1 812b4b38b0273b2229730793b4cfc7d574405c9d t/door-server0.pl
+SHA1 59c1193ee691ad1f26128ed218201739f6e15be2 t/door-server1.pl
+SHA1 fa90b210a872d76d40ebc65ace2686d9e07cbd65 t/door-server2.pl
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.4 (SunOS)
 
-iD8DBQFAsCmxoXhPvmJPsrERAv+vAJ41FSsb+4lPpE5ljjtetD4A12LwcACffODd
-qHE3TWyoEP4ElvWs9AwuPxw=
-=MHh0
+iD8DBQFCpZJRoXhPvmJPsrERAt4cAKDkCO3Nhr2saiGKlEptWsQ9khbxTQCg42hO
+9tqsd/+80GZPZ/eZV1vSJJ8=
+=KPGx
 -----END PGP SIGNATURE-----

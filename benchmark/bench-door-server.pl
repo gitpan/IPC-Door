@@ -1,7 +1,8 @@
-#!PERL -w
-#$Id: bench-door-server.pl,v 1.7 2004/05/23 04:30:04 asari Exp $
+#!/usr/bin/perl -w
+# $Id: bench-door-server.pl 35 2005-06-06 04:48:39Z asari $
 
 use strict;
+use blib;
 use File::Basename;
 use Cwd;
 use Fcntl;
@@ -30,7 +31,7 @@ while (1) {
 
     close DOOR;
 
-    select undef, undef, undef, 0.2;
+    select undef, undef, undef, 0.5;
 
 }
 

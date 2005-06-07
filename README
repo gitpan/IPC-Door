@@ -1,4 +1,4 @@
-IPC/Door version 0.10
+IPC::Door version 0.11
 =============================
 
 NOTICE
@@ -36,6 +36,9 @@ The doors are a fast IPC mechanism on a local machine.
 See, for example,
 <http://docs.sun.com/db/doc/817-0697/6mgfsdh2p?q=door&a=expand#D>
 
+A simple-minded benchmarking script is enclosed in "benchmark"
+subdirectory.
+
 INSTALLATION
 
 To install this module type the following:
@@ -45,28 +48,34 @@ To install this module type the following:
    make test
    make install
 
-I recommend that you read Makefile.PL to make sure you know what it
-does, and check the content of the "t" directory for what it tests, some
-examples, and a simple-minded benchmark script.
-
-If you are building with non-default "perl", then you may have to edit
-the shebang lines of t/*.pl to run tests successfully.
-
 DEPENDENCIES
 
 This module requires the door library.  This version assumes the API
 found in Solaris 2.6 and later.
 
-Sun revised portions of the Door API with Solaris 10.  While I am making
-my best effort to keep current with the changes, I also appreciate your
-bug reports if this module deviates from it.
-
 There is a project that attempts to implement the API in Linux.  See
 <http://ldoor.sourceforge.net> for more information.
 
+TO DO
+
+Some tests will fail with threaded perl.  As a consequence,
+Makefile.PL will die if your perl binary supports threads.  I understand
+that the binary package from blastwave.org is indeed thread-capable, so
+I know this is a rather important issue.  I welcome your input if you
+can help me troubleshoot this.
+
+In addition, some test results seem to depend on timing.  This could be
+due to my less than robust test scripts.
+
+The scalability leaves something to be desired.  The bundled benchmark
+scripts perform a simple-minded comparison with pipes, but the test
+itself becomes unreliable if you test too much.
+
+And much, much more.
+
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2003, 2004 ASARI Hirotsugu
+Copyright (C) 2003-2005 ASARI Hirotsugu
 
 asarih at cpan dot org
 
@@ -74,4 +83,4 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
 
 -- 
-$Id: README,v 1.16 2004/05/23 04:16:15 asari Exp $
+$Id: README 37 2005-06-07 05:50:05Z asari $

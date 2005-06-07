@@ -1,6 +1,8 @@
-#!PERL -w
-#$Id: bench-pipe-server.pl,v 1.7 2004/05/23 04:30:04 asari Exp $
+#!/usr/bin/perl -w
+# $Id: bench-pipe-server.pl 35 2005-06-06 04:48:39Z asari $
+
 use strict;
+use blib;
 use File::Basename;
 use Fcntl;
 

@@ -1,13 +1,13 @@
 #########################
 # Test script for IPC::Door
-# $Id: 02-tags-attr_desc.t,v 1.3 2004/05/01 07:59:58 asari Exp $
+# $Id: 02-tags-attr_desc.t 27 2005-05-31 13:47:29Z asari $
 
 # make sure the tags work
 
-use Test::More tests => 4;
+use Test::More tests => 3;
 use Fcntl;
 use strict;
-BEGIN { use_ok('IPC::Door', qw(:attr_desc)) }
+use IPC::Door qw(:attr_desc);
 
 is(DOOR_DESCRIPTOR, 0x10000, 'DOOR_DESCRIPTOR');
 

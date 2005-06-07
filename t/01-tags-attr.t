@@ -1,6 +1,6 @@
 #########################
 # Test script for IPC::Door
-# $Id: 01-tags-attr.t,v 1.5 2004/05/23 04:13:36 asari Exp $
+# $Id: 01-tags-attr.t 15 2005-05-27 04:20:14Z asari $
 
 # make sure the tags work
 

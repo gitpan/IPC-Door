@@ -1,4 +1,4 @@
-# $Id: Door.pm,v 1.36 2004/05/22 22:27:24 asari Exp $
+# $Id: Door.pm 37 2005-06-07 05:50:05Z asari $
 
 =head1 NAME
 
@@ -47,8 +47,8 @@ use Carp;
 use POSIX qw[ :fcntl_h uname ];
 
 # Make sure we're on an appropriate version of Solaris
-my ($sysname, $release) = (POSIX::uname())[ 0, 2 ];
-my ($major, $minor) = split /\./, $release;
+my ( $sysname, $release ) = ( POSIX::uname() )[ 0, 2 ];
+my ( $major, $minor ) = split /\./, $release;
 die "This module requires Solaris 2.6 and later.\n"
   unless $sysname eq 'SunOS' && $major >= 5 && $minor >= 6;
 
@@ -152,7 +152,7 @@ our %EXPORT_TAGS = (
     ],
 );
 
-our @EXPORT_OK = (@{ $EXPORT_TAGS{'all'} });
+our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 sub AUTOLOAD {
 
@@ -161,9 +161,9 @@ sub AUTOLOAD {
 
     my $constname;
     our $AUTOLOAD;
-    ($constname = $AUTOLOAD) =~ s/.*:://;
+    ( $constname = $AUTOLOAD ) =~ s/.*:://;
     croak "&IPC::Door::constant not defined" if $constname eq 'constant';
-    my ($error, $val) = constant($constname);
+    my ( $error, $val ) = constant($constname);
     if ($error) { croak $error; }
     {
         no strict 'refs';
@@ -180,10 +180,10 @@ sub AUTOLOAD {
     goto &$AUTOLOAD;
 }
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 require XSLoader;
-XSLoader::load('IPC::Door', $VERSION);
+XSLoader::load( 'IPC::Door', $VERSION );
 
 =head1 ABSTRACT
 
@@ -203,28 +203,29 @@ through which it communicates with a server (if the object is a
 C<::Client>) or a client (if the object is a C<::Server>).
 
 In addition, the C<IPC::Door::Server> object requires a reference to a
-code block C<$codeblock>, which will be a part of the server process upon
+code block C<&mysub>, which will be a part of the server process upon
 compilation.
 See L<IPC::Door::Server>.
 
 =cut
 
 sub new {
-    my ($this, $path, $subref) = @_;
+    my ( $this, $path, $subref, $attr ) = @_;
     croak("Too few arguements for the 'new' method.\n") unless defined($path);
     my $class = ref($this) || $this;
     my $self = { 'path' => $path };
 
-    if ($class eq 'IPC::Door::Server') {
-        unless (defined($subref)) {
+    if ( $class eq 'IPC::Door::Server' ) {
+        $attr = 0 unless defined( $attr );
+        unless ( defined($subref) ) {
             carp "Too few arguments for the 'new' method.\n";
         }
         bless $self, $class;
         $self->{'callback'} = $subref;
         die "Can't create door to $path: $!\n"
-          unless $self->__create($path, $subref);
+          unless $self->__create( $path, $subref, $attr );
     }
-    elsif ($class eq 'IPC::Door::Client') {
+    elsif ( $class eq 'IPC::Door::Client' ) {
         bless $self, $class;
     }
 
@@ -254,11 +255,11 @@ door.
     my ($target, $attr, $uniq) = IPC::Door::info($door);
 
 Subroutine C<info> takes the path to a door and return array
-C<(target, attributes, uniquifer)>.
-C<target> is the server process id that is listening through the door,
-C<attributes> is the integer that represents the attributes of the door
+C<($target, $attributes, $uniquifer)>.
+C<$target> is the server process id that is listening through the door.
+C<$attributes> is the integer that represents the attributes of the door
 (see L<Door attributes>),
-and C<uniquifer> is the system-wide unique number associated with the
+and C<$uniquifer> is the system-wide unique number associated with the
 door.
 
 =head3 Door attributes
@@ -287,9 +288,15 @@ Note that not all symbols are available in all versions of Solaris.
 
 sub info ($) {
     my $self = shift;
-    my $path = (ref($self) =~ m/^IPC::Door/) ? $self->{'path'} : $self;
+    my $path = ( ref($self) =~ m/^IPC::Door::(Server|Client)$/ )
+    ? $self->{'path'}  # We are called as an object method
+    : $self;           # Called as in 'IPC::Door::info($path)'
 
-    return __info($path);
+    return __info($path, ref($self));
+    # When we are called as an IPC::Door::Server method, we want to
+    # pass DOOR_QUERY as the file descriptor to door_info().
+    # (This is supposed to work, according to Stevens, but it doesn't
+    # seem to.)
 
 }
 
@@ -306,24 +313,33 @@ __END__
 
 =over 4
 
-=item 1.  Restriction on passed data
+=item 1.  Incomaptible with threaded perl
 
-The doors created by C<IPC::Door::*> can only pass strings.
-If it's a normal scalar in the Perl sense, Perl does the conversion when
-a number is expected.
+I know this module does not work nicely if perl was configured with
+C<-Dusethreads> option.
+I know that the precompiled package from L<http://www.blastwave.org> has
+this option set.
+I am not sure about the one from L<http://www.sunfreeware.com>.
 
-Note that passing references won't work.
-If you want to pass complex data structures, use the L<Storable> module,
-which is now standard with Perl 5.8.0.
+=item 2.  Compatibility with other door clients and servers
 
-This also means that only C<IPC::Door::Server> servers can talk to
-C<IPC::Door::client> clients, and conversely.
+The doors created by C<IPC::Door::Server> evaluates the passed data in the
+scalar context before passing it to the door server.  If you want to
+pass complex data structures, use the L<Storable> module, which is
+standard as of Perl 5.8.0.
 
-Furthermore, if you pass too much data (8KB or so) through the door, the
-door server process dumps core with segmentation fault when DESTROY'ed.
-I have not fully investigated the cause.
+Data an C<IPC::Door::Server> object returns are probably incomprehensible and
+useless for non-C<IPC::Door::Client> processes.  You can read the source
+to find out exactly what are passed around, but it might not be worth
+your while to do that, when you can simply use C<IPC::Door::Client>.
+(And of course, I might change the internal data structure in the
+future.)
 
-=item 2.  Some C<door_*> routines not implemented
+Conversely, C<IPC::Door::Client> can read data from doors created by
+non-C<IPC::Door::Server> processes, but it is entirely up to the
+C<IPC::Door::Client> process to make sense of what's read.
+
+=item 3.  Some C<door_*> routines not implemented
 
 Some door library routines
 C<door_bind>, C<door_revoke>, C<door_server_create>,
@@ -336,15 +352,15 @@ If you are really interested in this sort of thing, contact the author.
 
 C<door_info> is only partially implemented.
 
-=item 3.  Incomplete error checking
+=item 4.  Incomplete error checking
 
 There should be more robust error checking and more friendly error
 messages throughout.
 
-=item 4.  Limited testing
+=item 5.  Limited testing
 
 C<IPC::Door> has been tested on Solaris 8 (with Sun Workshop compiler),
-9 (with gcc 3.3), and 10 (5/04, with gcc 3.4.0) (all on SPARC).
+9 (with gcc 3.3), and 10 (with gcc 4.0.0) (all on SPARC).
 
 I need more testing on following configurations (both SPARC and x86
 unless otherwisse noted):
@@ -353,7 +369,8 @@ unless otherwisse noted):
 
 =item *
 
-Solaris 9 and 10 with Sun ONE Studio compiler.
+Solaris 9 and 10 with Sun ONE Studio compiler (or whatever Sun calls its
+C compiler these days).
 
 =item *
 
@@ -361,7 +378,7 @@ Solaris 9 and 10 with Sun ONE Studio compiler.
 
 =item *
 
-Threaded perl.
+Threaded perl.  (See above.)
 
 =item *
 
@@ -372,16 +389,16 @@ Solaris 10 on x86.
 Please let me know if you can help me test the module on these
 configurations.
 
-=item 5.  A little inconsistent XS code
+=item 6.  A little inconsistent XS code
 
 I'm still a beginner at XS (some may argue also at Perl), so the code,
 especially the XS portion, can be improved.
 Any suggestions are welcome.
 
-=item 6.  Unicode compatibility
+=item 7.  Unicode compatibility
 
-I have not tested this module with UTF-8-encoded strings.
-It may or may not work.
+In my limited testing, I found that this module has difficulty dealing
+with Unicode data.
 
 =back
 
@@ -405,7 +422,7 @@ door_revoke(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3s?a=view>),
 
 door_server_create(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3t?a=view>),
 
-door_ucred(3DOOR)
+door_ucred(3DOOR) (L<http://docs.sun.com/app/docs/doc/816-5171/6mbb6dcnk?a=view>),
 
 door_unbind(3DOOR) (L<http://docs.sun.com/db/doc/817-0697/6mgfsdh3u?a=view>),
 
@@ -423,7 +440,7 @@ ASARI Hirotsugu <asarih at cpan dot org>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003, 2004 by ASARI Hirotsugu
+Copyright 2003-2005 by ASARI Hirotsugu
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

@@ -328,7 +328,7 @@ constant (pTHX_ const char *name, STRLEN len, IV *iv_return) {
      Regenerate these constant functions by feeding this entire source file to
      perl -x
 
-#!/opt/csw/bin/perl -w
+#!/opt/perl-5.8.6/bin/perl -w
 use ExtUtils::Constant qw (constant_types C_constant XS_constant);
 
 my $types = {map {($_, 1)} qw(IV)};
@@ -337,19 +337,29 @@ my @names = (qw(DOOR_ATTR_MASK DOOR_BIND DOOR_CALL DOOR_CREATE DOOR_CREATE_MASK
 	       DOOR_INVAL DOOR_IS_UNREF DOOR_KI_CREATE_MASK DOOR_LOCAL
 	       DOOR_PRIVATE DOOR_QUERY DOOR_REFUSE_DESC DOOR_RELEASE
 	       DOOR_RETURN DOOR_REVOKE DOOR_REVOKED DOOR_UCRED DOOR_UNBIND
-	       DOOR_UNREF DOOR_UNREFSYS DOOR_UNREF_ACTIVE DOOR_UNREF_DATA
-	       DOOR_UNREF_MULTI DOOR_WAIT));
+	       DOOR_UNREF DOOR_UNREFSYS DOOR_UNREF_ACTIVE DOOR_UNREF_MULTI
+	       DOOR_WAIT S_IFDOOR));
 
 print constant_types(); # macro defs
-foreach (C_constant ("Door", 'constant', 'IV', $types, undef, 3, @names) ) {
+foreach (C_constant ("IPC::Door", 'constant', 'IV', $types, undef, 3, @names) ) {
     print $_, "\n"; # C constant subs
 }
 print "#### XS Section:\n";
-print XS_constant ("Door", $types);
+print XS_constant ("IPC::Door", $types);
 __END__
    */
 
   switch (len) {
+  case 8:
+    if (memEQ(name, "S_IFDOOR", 8)) {
+#ifdef S_IFDOOR
+      *iv_return = S_IFDOOR;
+      return PERL_constant_ISIV;
+#else
+      return PERL_constant_NOTDEF;
+#endif
+    }
+    break;
   case 9:
     return constant_9 (aTHX_ name, iv_return);
     break;
@@ -402,32 +412,13 @@ __END__
     }
     break;
   case 15:
-    /* Names all of length 15.  */
-    /* DOOR_DESCRIPTOR DOOR_UNREF_DATA */
-    /* Offset 7 gives the best switch position.  */
-    switch (name[7]) {
-    case 'R':
-      if (memEQ(name, "DOOR_UNREF_DATA", 15)) {
-      /*                      ^              */
-#ifdef DOOR_UNREF_DATA
-        *iv_return = DOOR_UNREF_DATA;
-        return PERL_constant_ISIV;
-#else
-        return PERL_constant_NOTDEF;
-#endif
-      }
-      break;
-    case 'S':
-      if (memEQ(name, "DOOR_DESCRIPTOR", 15)) {
-      /*                      ^              */
+    if (memEQ(name, "DOOR_DESCRIPTOR", 15)) {
 #ifdef DOOR_DESCRIPTOR
-        *iv_return = DOOR_DESCRIPTOR;
-        return PERL_constant_ISIV;
+      *iv_return = DOOR_DESCRIPTOR;
+      return PERL_constant_ISIV;
 #else
-        return PERL_constant_NOTDEF;
+      return PERL_constant_NOTDEF;
 #endif
-      }
-      break;
     }
     break;
   case 16:

@@ -1,15 +1,8 @@
-#!PERL -w
-#$Id: benchmark.pl,v 1.13 2004/05/23 04:30:04 asari Exp $
-
-# A benchmark script to compare IPC through FIFO and doors.
-# Not exactly helpful for a couple of reasons.
-# 1.  Doors don't seem to handle bursts in data coming in.
-#     After some calls from timethese(), the door we create simply
-#     disappears, and the benchmark is useless.
-# 2.  Even then, I've seen the FIFO code giving zero time after a long
-#     pause.
+#!/usr/bin/perl -w
+# $Id: benchmark.pl 35 2005-06-06 04:48:39Z asari $
 
 use strict;
+use blib;
 use Benchmark qw[:all];
 
 use blib;
@@ -29,7 +22,7 @@ my $dclient = new IPC::Door::Client($door);
 use constant int_max   => 2**16 - 1;
 use constant precision => 0.005;
 
-my $iteration = shift || 200;
+my $iteration = shift || 500;
 
 my $read_pipe  = $path . "CLIENT_PIPE";
 my $write_pipe = $path . "SERVER_PIPE";
@@ -37,7 +30,9 @@ my $write_pipe = $path . "SERVER_PIPE";
 my %errors = ( 'DOOR' => 0, 'PIPE' => 0 );
 my %count  = ( 'DOOR' => 0, 'PIPE' => 0 );
 
-# run benchmarks
+$SIG{INT}  = \&cleanup;
+$SIG{TERM} = \&cleanup;
+
 &spawn_pipe_server();
 &spawn_door_server();
 print "Ready for benchmarks? ";
@@ -47,7 +42,6 @@ if ( $ans =~ m/^[nN]/ ) {
     die "Benchmarking aborted.\n";
 }
 
-#timethis( $iteration, \&call_pipe_server, 'DOOR');
 timethese(
     $iteration,
     {
@@ -59,9 +53,9 @@ timethese(
 print "DOOR: executed $count{'DOOR'}; $errors{'DOOR'} errors\n";
 print "PIPE: executed $count{'PIPE'}; $errors{'PIPE'} errors\n";
 
+select undef, undef, undef, 2;
 &cleanup;
 
-# Subroutines
 sub spawn_pipe_server () {
   FORK_PIPE_SERVER: {
         if ( $pipe_server_pid = fork ) {
@@ -102,7 +96,7 @@ sub spawn_door_server () {
 
 sub call_door_server {
     my $num    = rand() * int_max;
-    my $answer = $dclient->call($num);
+    my $answer = $dclient->call($num) || 0;
 
     if ( abs( $answer - $num**2 ) > precision ) { $errors{'DOOR'}++ }
     $count{'DOOR'}++;
